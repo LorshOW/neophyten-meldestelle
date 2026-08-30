@@ -306,30 +306,62 @@
     };
 
 
-    // Später: Übergabe an Kobo
-    document.getElementById('continueButton').onclick = function() {
+   // Übergabe der Kartendaten an Kobo
+document.getElementById('continueButton').onclick = function() {
 
-      if (!drawingLayer) {
+  if (!drawingLayer) {
+    alert('Bitte zuerst einen Standort oder eine Fläche markieren.');
+    return;
+  }
 
-        alert(
-          'Bitte zuerst einen Standort oder eine Fläche markieren.'
-        );
+  const geojson = drawingLayer.toGeoJSON();
 
-        return;
-      }
+  // Eindeutige Melde-ID erzeugen
+  const meldeId =
+    'NEO-' +
+    Date.now().toString(36).toUpperCase() +
+    '-' +
+    Math.random().toString(36).substring(2, 7).toUpperCase();
 
-      const geojson = drawingLayer.toGeoJSON();
+  let kartenTyp = '';
+  let latitude = '';
+  let longitude = '';
 
-      console.log('Kartendaten:', geojson);
+  // Einzelner Standort
+  if (geojson.geometry.type === 'Point') {
 
-      alert(
-        'Kartendaten wurden erfolgreich erfasst.\n\n' +
-        'Im nächsten Schritt werden diese Daten an Kobo übergeben.'
-      );
+    kartenTyp = 'Punkt';
 
-    };
+    longitude = geojson.geometry.coordinates[0];
+    latitude  = geojson.geometry.coordinates[1];
 
-  </script>
+  }
 
-</body>
-</html>
+  // Fläche
+  else if (geojson.geometry.type === 'Polygon') {
+
+    kartenTyp = 'Flaeche';
+
+    // Mittelpunkt der Fläche zusätzlich speichern
+    const center = drawingLayer.getBounds().getCenter();
+
+    latitude = center.lat;
+    longitude = center.lng;
+
+  }
+
+  // Komplette Geometrie als GeoJSON speichern
+  const geojsonText = JSON.stringify(geojson.geometry);
+
+  const koboUrl =
+    'https://ee-eu.kobotoolbox.org/x/aeG09o4G' +
+    '?d[melde_id]=' + encodeURIComponent(meldeId) +
+    '&d[karten_typ]=' + encodeURIComponent(kartenTyp) +
+    '&d[karten_lat]=' + encodeURIComponent(latitude) +
+    '&d[karten_lon]=' + encodeURIComponent(longitude) +
+    '&d[karten_geojson]=' + encodeURIComponent(geojsonText);
+
+  // Kobo-Formular öffnen
+  window.location.href = koboUrl;
+
+};
