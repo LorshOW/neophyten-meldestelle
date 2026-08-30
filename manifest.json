@@ -1,0 +1,11 @@
+{
+  "name": "Neophyten melden",
+  "short_name": "Neophyten",
+  "description": "Meldestelle für invasive Pflanzen",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7f4",
+  "theme_color": "#245b32",
+  "lang": "de"
+}
