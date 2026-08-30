@@ -73,11 +73,17 @@
       color: #234b2d;
     }
 
-    .delete-point {
-      width: 100%;
+    .help {
+      background: #f3f7f3;
+      border-radius: 8px;
+      padding: 11px 13px;
       margin-bottom: 10px;
-      background: #fff3cd;
-      color: #5f4b00;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .help strong {
+      color: #245b32;
     }
 
     .delete {
@@ -124,9 +130,12 @@
       <button id="polygonButton">⬡ Fläche einzeichnen</button>
     </div>
 
-    <button class="delete-point" id="deletePointButton">
-      ✂ Einzelnen Eckpunkt löschen
-    </button>
+    <div class="help">
+      <strong>Fläche korrigieren:</strong><br>
+      Die weißen Eckpunkte kannst du verschieben.
+      Halte einen Eckpunkt <strong>länger gedrückt</strong>,
+      um ihn zu löschen.
+    </div>
 
     <button class="delete" id="deleteButton">
       🗑 Ganze Markierung löschen
@@ -147,7 +156,6 @@
 
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.min.js"></script>
 
-
   <script>
 
     const map = L.map('map').setView([50.7, 12.95], 12);
@@ -166,10 +174,7 @@
     let drawingLayer = null;
 
 
-    // --------------------------------------------------
-    // GPS-STANDORT
-    // --------------------------------------------------
-
+    // GPS-Standort bestimmen
     map.locate({
       setView: true,
       maxZoom: 17,
@@ -210,14 +215,9 @@
     });
 
 
-    // --------------------------------------------------
-    // VORHANDENE MARKIERUNG ENTFERNEN
-    // --------------------------------------------------
-
     function removeDrawing() {
 
       map.pm.disableDraw();
-      map.pm.disableGlobalRemovalMode();
 
       if (drawingLayer) {
         map.removeLayer(drawingLayer);
@@ -230,10 +230,7 @@
     }
 
 
-    // --------------------------------------------------
-    // PUNKT SETZEN
-    // --------------------------------------------------
-
+    // Standort markieren
     document.getElementById('pointButton').onclick = function() {
 
       removeDrawing();
@@ -248,10 +245,7 @@
     };
 
 
-    // --------------------------------------------------
-    // POLYGON ZEICHNEN
-    // --------------------------------------------------
-
+    // Fläche einzeichnen
     document.getElementById('polygonButton').onclick = function() {
 
       removeDrawing();
@@ -267,10 +261,7 @@
     };
 
 
-    // --------------------------------------------------
-    // NEUE MARKIERUNG
-    // --------------------------------------------------
-
+    // Markierung wurde erstellt
     map.on('pm:create', function(e) {
 
       if (drawingLayer && drawingLayer !== e.layer) {
@@ -281,7 +272,7 @@
 
       map.pm.disableDraw();
 
-      // Punkt verschiebbar machen
+      // Einzelner Standort
       if (drawingLayer instanceof L.Marker) {
 
         drawingLayer.pm.enable();
@@ -291,129 +282,23 @@
 
       }
 
-      // Polygon bearbeitbar machen
+      // Fläche
       else {
 
         drawingLayer.pm.enable({
-          allowSelfIntersection: false
+          allowSelfIntersection: false,
+          removeLayerBelowMinVertexCount: false
         });
 
         document.getElementById('status').textContent =
-          '✓ Fläche erfasst. Eckpunkte können verschoben oder einzeln gelöscht werden.';
+          '✓ Fläche erfasst. Du kannst die Eckpunkte noch bearbeiten.';
 
       }
 
     });
 
 
-    // --------------------------------------------------
-    // EINZELNEN POLYGON-ECKPUNKT LÖSCHEN
-    // --------------------------------------------------
-
-    document.getElementById('deletePointButton').onclick = function() {
-
-      if (!drawingLayer) {
-
-        alert('Bitte zuerst eine Fläche einzeichnen.');
-        return;
-
-      }
-
-      if (drawingLayer instanceof L.Marker) {
-
-        alert('Bei einem einzelnen Standort gibt es keine Eckpunkte.');
-        return;
-
-      }
-
-      map.pm.disableGlobalRemovalMode();
-
-      // Polygon in Bearbeitungsmodus bringen
-      drawingLayer.pm.enable({
-        allowSelfIntersection: false,
-        removeLayerBelowMinVertexCount: false
-      });
-
-      document.getElementById('status').textContent =
-        'Tippe jetzt auf den Eckpunkt, den du löschen möchtest.';
-
-      /*
-       * Leaflet-Geoman:
-       * Im Edit-Modus entfernt ein Klick auf einen sichtbaren
-       * Eckpunkt mit aktivierter Entfernung den betreffenden Vertex.
-       */
-
-      const markers = drawingLayer.pm.getMarkers();
-
-      markers.forEach(function(markerArray) {
-
-        const list = Array.isArray(markerArray)
-          ? markerArray
-          : [markerArray];
-
-        list.forEach(function(marker) {
-
-          marker.once('click', function() {
-
-            const latlng = marker.getLatLng();
-
-            const polygonLatLngs = drawingLayer.getLatLngs()[0];
-
-            // Polygon benötigt mindestens 3 Punkte
-            if (polygonLatLngs.length <= 3) {
-
-              alert(
-                'Eine Fläche benötigt mindestens drei Eckpunkte. ' +
-                'Dieser Punkt kann deshalb nicht gelöscht werden.'
-              );
-
-              return;
-            }
-
-            let nearestIndex = -1;
-            let nearestDistance = Infinity;
-
-            polygonLatLngs.forEach(function(p, index) {
-
-              const distance = p.distanceTo(latlng);
-
-              if (distance < nearestDistance) {
-                nearestDistance = distance;
-                nearestIndex = index;
-              }
-
-            });
-
-            if (nearestIndex >= 0) {
-
-              polygonLatLngs.splice(nearestIndex, 1);
-
-              drawingLayer.setLatLngs([polygonLatLngs]);
-
-              drawingLayer.pm.disable();
-
-              drawingLayer.pm.enable({
-                allowSelfIntersection: false
-              });
-
-              document.getElementById('status').textContent =
-                '✓ Eckpunkt gelöscht. Die Fläche kann weiter bearbeitet werden.';
-
-            }
-
-          });
-
-        });
-
-      });
-
-    };
-
-
-    // --------------------------------------------------
-    // GANZE MARKIERUNG LÖSCHEN
-    // --------------------------------------------------
-
+    // Ganze Markierung löschen
     document.getElementById('deleteButton').onclick = function() {
 
       removeDrawing();
@@ -421,10 +306,7 @@
     };
 
 
-    // --------------------------------------------------
-    // WEITER
-    // --------------------------------------------------
-
+    // Später: Übergabe an Kobo
     document.getElementById('continueButton').onclick = function() {
 
       if (!drawingLayer) {
@@ -434,7 +316,6 @@
         );
 
         return;
-
       }
 
       const geojson = drawingLayer.toGeoJSON();
