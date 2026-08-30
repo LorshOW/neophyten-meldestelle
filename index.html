@@ -1,22 +1,30 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Invasive Pflanze melden</title>
 
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#245b32">
+
+  <!-- Leaflet -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   >
 
+  <!-- Leaflet-Geoman -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css"
   >
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -46,10 +54,21 @@
       line-height: 1.4;
     }
 
+    #connectionStatus {
+      display: none;
+      padding: 9px 14px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      background: #fff3cd;
+      color: #664d03;
+    }
+
     #map {
       width: 100%;
       height: 58vh;
       min-height: 390px;
+      background: #e8ece8;
     }
 
     .controls {
@@ -111,43 +130,69 @@
       font-size: 14px;
       min-height: 18px;
     }
+
   </style>
 </head>
+
 
 <body>
 
   <div class="header">
+
     <h1>🌿 Invasive Pflanze melden</h1>
 
     <p>
       Markiere bitte den Fundort der Pflanze.<br>
       Du kannst einen Standort setzen oder eine Fläche einzeichnen.
     </p>
+
   </div>
 
+
+  <!-- Wird nur bei fehlender Internetverbindung angezeigt -->
+  <div id="connectionStatus">
+    ⚠️ Keine Internetverbindung – GPS kann trotzdem funktionieren.
+  </div>
+
+
   <div id="map"></div>
+
 
   <div class="controls">
 
     <div class="mode-buttons">
-      <button id="pointButton">📍 Standort markieren</button>
-      <button id="polygonButton">⬡ Fläche einzeichnen</button>
+
+      <button id="pointButton">
+        📍 Standort markieren
+      </button>
+
+      <button id="polygonButton">
+        ⬡ Fläche einzeichnen
+      </button>
+
     </div>
 
+
     <div class="help">
+
       <strong>Fläche korrigieren:</strong><br>
+
       Die weißen Eckpunkte kannst du verschieben.
       Halte einen Eckpunkt <strong>länger gedrückt</strong>,
       um ihn zu löschen.
+
     </div>
+
 
     <button class="delete" id="deleteButton">
       🗑 Ganze Markierung löschen
     </button>
 
+
     <div class="status" id="status">
       Bitte markiere den Fundort.
     </div>
+
 
     <button class="continue" id="continueButton">
       Standort übernehmen &amp; weiter
@@ -155,17 +200,86 @@
 
   </div>
 
+
+  <!-- Leaflet -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+
+  <!-- Leaflet-Geoman -->
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.min.js"></script>
+
 
   <script>
 
-    // ------------------------------------------------------------
-    // Karte
-    // ------------------------------------------------------------
+    // ============================================================
+    // SERVICE WORKER
+    // ============================================================
 
-    const map = L.map('map').setView([50.7, 12.95], 12);
+    if ('serviceWorker' in navigator) {
+
+      window.addEventListener('load', function() {
+
+        navigator.serviceWorker
+          .register('./service-worker.js')
+          .then(function() {
+            console.log('Service Worker aktiv.');
+          })
+          .catch(function(error) {
+            console.error('Service Worker Fehler:', error);
+          });
+
+      });
+
+    }
+
+
+    // ============================================================
+    // ONLINE / OFFLINE STATUS
+    // ============================================================
+
+    function updateConnectionStatus() {
+
+      const box =
+        document.getElementById('connectionStatus');
+
+      if (navigator.onLine) {
+
+        box.style.display = 'none';
+
+      } else {
+
+        box.style.display = 'block';
+
+      }
+
+    }
+
+
+    window.addEventListener(
+      'online',
+      updateConnectionStatus
+    );
+
+
+    window.addEventListener(
+      'offline',
+      updateConnectionStatus
+    );
+
+
+    updateConnectionStatus();
+
+
+    // ============================================================
+    // KARTE
+    // ============================================================
+
+    const map =
+      L.map('map').setView(
+        [50.7, 12.95],
+        12
+      );
+
 
     L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -181,163 +295,248 @@
     let drawingLayer = null;
 
 
-    // ------------------------------------------------------------
-    // GPS-Standort bestimmen
-    // ------------------------------------------------------------
+    // ============================================================
+    // GPS-STANDORT
+    // ============================================================
 
     map.locate({
+
       setView: true,
       maxZoom: 17,
       enableHighAccuracy: true
+
     });
 
 
-    map.on('locationfound', function(e) {
+    map.on(
+      'locationfound',
+      function(e) {
 
-      if (userLocation) {
-        map.removeLayer(userLocation);
+        if (userLocation) {
+
+          map.removeLayer(userLocation);
+
+        }
+
+
+        if (accuracyCircle) {
+
+          map.removeLayer(accuracyCircle);
+
+        }
+
+
+        userLocation =
+          L.circleMarker(
+            e.latlng,
+            {
+              radius: 9,
+              weight: 3,
+              fillOpacity: 0.8
+            }
+          ).addTo(map);
+
+
+        accuracyCircle =
+          L.circle(
+            e.latlng,
+            {
+              radius: e.accuracy,
+              weight: 1,
+              fillOpacity: 0.08
+            }
+          ).addTo(map);
+
       }
+    );
 
-      if (accuracyCircle) {
-        map.removeLayer(accuracyCircle);
+
+    map.on(
+      'locationerror',
+      function() {
+
+        document.getElementById(
+          'status'
+        ).textContent =
+          'GPS-Standort konnte nicht bestimmt werden. Du kannst den Fundort trotzdem auf der Karte markieren.';
+
       }
-
-      userLocation = L.circleMarker(e.latlng, {
-        radius: 9,
-        weight: 3,
-        fillOpacity: 0.8
-      }).addTo(map);
-
-      accuracyCircle = L.circle(e.latlng, {
-        radius: e.accuracy,
-        weight: 1,
-        fillOpacity: 0.08
-      }).addTo(map);
-
-    });
+    );
 
 
-    map.on('locationerror', function() {
-
-      document.getElementById('status').textContent =
-        'GPS-Standort konnte nicht bestimmt werden. Du kannst den Fundort trotzdem auf der Karte markieren.';
-
-    });
-
-
-    // ------------------------------------------------------------
-    // Vorhandene Zeichnung entfernen
-    // ------------------------------------------------------------
+    // ============================================================
+    // ZEICHNUNG ENTFERNEN
+    // ============================================================
 
     function removeDrawing() {
 
       map.pm.disableDraw();
 
+
       if (drawingLayer) {
+
         map.removeLayer(drawingLayer);
+
         drawingLayer = null;
+
       }
 
-      document.getElementById('status').textContent =
+
+      document.getElementById(
+        'status'
+      ).textContent =
         'Bitte markiere den Fundort.';
 
     }
 
 
-    // ------------------------------------------------------------
-    // Standort markieren
-    // ------------------------------------------------------------
+    // ============================================================
+    // PUNKT MARKIEREN
+    // ============================================================
 
-    document.getElementById('pointButton').onclick = function() {
+    document.getElementById(
+      'pointButton'
+    ).onclick = function() {
 
       removeDrawing();
 
-      map.pm.enableDraw('Marker', {
-        snappable: true
-      });
 
-      document.getElementById('status').textContent =
+      map.pm.enableDraw(
+        'Marker',
+        {
+          snappable: true
+        }
+      );
+
+
+      document.getElementById(
+        'status'
+      ).textContent =
         'Tippe auf den Fundort in der Karte.';
 
     };
 
 
-    // ------------------------------------------------------------
-    // Fläche einzeichnen
-    // ------------------------------------------------------------
+    // ============================================================
+    // FLÄCHE EINZEICHNEN
+    // ============================================================
 
-    document.getElementById('polygonButton').onclick = function() {
+    document.getElementById(
+      'polygonButton'
+    ).onclick = function() {
 
       removeDrawing();
 
-      map.pm.enableDraw('Polygon', {
-        snappable: true,
-        allowSelfIntersection: false
-      });
 
-      document.getElementById('status').textContent =
+      map.pm.enableDraw(
+        'Polygon',
+        {
+          snappable: true,
+          allowSelfIntersection: false
+        }
+      );
+
+
+      document.getElementById(
+        'status'
+      ).textContent =
         'Zeichne die Fläche auf der Karte ein.';
 
     };
 
 
-    // ------------------------------------------------------------
-    // Markierung wurde erstellt
-    // ------------------------------------------------------------
+    // ============================================================
+    // MARKIERUNG ERSTELLT
+    // ============================================================
 
-    map.on('pm:create', function(e) {
+    map.on(
+      'pm:create',
+      function(e) {
 
-      if (drawingLayer && drawingLayer !== e.layer) {
-        map.removeLayer(drawingLayer);
+        if (
+          drawingLayer &&
+          drawingLayer !== e.layer
+        ) {
+
+          map.removeLayer(
+            drawingLayer
+          );
+
+        }
+
+
+        drawingLayer =
+          e.layer;
+
+
+        map.pm.disableDraw();
+
+
+        // --------------------------------------------------------
+        // Punkt
+        // --------------------------------------------------------
+
+        if (
+          drawingLayer instanceof L.Marker
+        ) {
+
+          drawingLayer.pm.enable();
+
+
+          document.getElementById(
+            'status'
+          ).textContent =
+            '✓ Standort erfasst. Du kannst den Punkt noch verschieben.';
+
+        }
+
+
+        // --------------------------------------------------------
+        // Fläche
+        // --------------------------------------------------------
+
+        else {
+
+          drawingLayer.pm.enable(
+            {
+              allowSelfIntersection: false,
+              removeLayerBelowMinVertexCount: false
+            }
+          );
+
+
+          document.getElementById(
+            'status'
+          ).textContent =
+            '✓ Fläche erfasst. Du kannst die Eckpunkte noch bearbeiten.';
+
+        }
+
       }
-
-      drawingLayer = e.layer;
-
-      map.pm.disableDraw();
+    );
 
 
-      // Einzelner Standort
-      if (drawingLayer instanceof L.Marker) {
+    // ============================================================
+    // GANZE MARKIERUNG LÖSCHEN
+    // ============================================================
 
-        drawingLayer.pm.enable();
-
-        document.getElementById('status').textContent =
-          '✓ Standort erfasst. Du kannst den Punkt noch verschieben.';
-
-      }
-
-      // Fläche
-      else {
-
-        drawingLayer.pm.enable({
-          allowSelfIntersection: false,
-          removeLayerBelowMinVertexCount: false
-        });
-
-        document.getElementById('status').textContent =
-          '✓ Fläche erfasst. Du kannst die Eckpunkte noch bearbeiten.';
-
-      }
-
-    });
-
-
-    // ------------------------------------------------------------
-    // Ganze Markierung löschen
-    // ------------------------------------------------------------
-
-    document.getElementById('deleteButton').onclick = function() {
+    document.getElementById(
+      'deleteButton'
+    ).onclick = function() {
 
       removeDrawing();
 
     };
 
 
-    // ------------------------------------------------------------
-    // Kartendaten an Kobo übergeben
-    // ------------------------------------------------------------
+    // ============================================================
+    // KARTENDATEN AN KOBO ÜBERGEBEN
+    // ============================================================
 
-    document.getElementById('continueButton').onclick = function() {
+    document.getElementById(
+      'continueButton'
+    ).onclick = function() {
+
 
       if (!drawingLayer) {
 
@@ -346,61 +545,94 @@
         );
 
         return;
+
       }
 
 
-      const geojson = drawingLayer.toGeoJSON();
+      const geojson =
+        drawingLayer.toGeoJSON();
 
 
-      // Eindeutige Melde-ID erzeugen
+      // ----------------------------------------------------------
+      // Eindeutige Melde-ID
+      // ----------------------------------------------------------
+
       const meldeId =
         'NEO-' +
-        Date.now().toString(36).toUpperCase() +
+        Date.now()
+          .toString(36)
+          .toUpperCase() +
         '-' +
-        Math.random().toString(36).substring(2, 7).toUpperCase();
+        Math.random()
+          .toString(36)
+          .substring(2, 7)
+          .toUpperCase();
 
 
       let kartenTyp = '';
+
       let latitude = '';
+
       let longitude = '';
 
 
       // ----------------------------------------------------------
       // Punkt
-      // GeoJSON speichert Koordinaten als:
-      // [Längengrad, Breitengrad]
+      // GeoJSON = [Längengrad, Breitengrad]
       // ----------------------------------------------------------
 
-      if (geojson.geometry.type === 'Point') {
+      if (
+        geojson.geometry.type ===
+        'Point'
+      ) {
 
-        kartenTyp = 'Punkt';
+        kartenTyp =
+          'Punkt';
 
-        longitude = geojson.geometry.coordinates[0];
-        latitude = geojson.geometry.coordinates[1];
+
+        longitude =
+          geojson.geometry
+            .coordinates[0];
+
+
+        latitude =
+          geojson.geometry
+            .coordinates[1];
 
       }
 
 
       // ----------------------------------------------------------
       // Fläche
-      // Zusätzlich wird der Mittelpunkt der Fläche gespeichert.
-      // Die vollständige Fläche bleibt im GeoJSON erhalten.
       // ----------------------------------------------------------
 
-      else if (geojson.geometry.type === 'Polygon') {
+      else if (
+        geojson.geometry.type ===
+        'Polygon'
+      ) {
 
-        kartenTyp = 'Flaeche';
+        kartenTyp =
+          'Flaeche';
 
-        const center = drawingLayer.getBounds().getCenter();
 
-        latitude = center.lat;
-        longitude = center.lng;
+        const center =
+          drawingLayer
+            .getBounds()
+            .getCenter();
+
+
+        latitude =
+          center.lat;
+
+
+        longitude =
+          center.lng;
 
       }
 
 
       // ----------------------------------------------------------
-      // Sicherheit: unbekannter Geometrietyp
+      // Unbekannte Geometrie
       // ----------------------------------------------------------
 
       else {
@@ -414,42 +646,60 @@
       }
 
 
-      // Vollständige Geometrie kompakt als GeoJSON
+      // ----------------------------------------------------------
+      // Vollständige Geometrie
+      // ----------------------------------------------------------
+
       const geojsonText =
-        JSON.stringify(geojson.geometry);
+        JSON.stringify(
+          geojson.geometry
+        );
 
 
       // ----------------------------------------------------------
-      // Kobo-Adresse mit Vorbefüllung erstellen
+      // Kobo URL
       // ----------------------------------------------------------
 
       const koboUrl =
         'https://ee-eu.kobotoolbox.org/x/aeG09o4G' +
+
         '?d[melde_id]=' +
-        encodeURIComponent(meldeId) +
+        encodeURIComponent(
+          meldeId
+        ) +
 
         '&d[karten_typ]=' +
-        encodeURIComponent(kartenTyp) +
+        encodeURIComponent(
+          kartenTyp
+        ) +
 
         '&d[karten_lat]=' +
-        encodeURIComponent(latitude) +
+        encodeURIComponent(
+          latitude
+        ) +
 
         '&d[karten_lon]=' +
-        encodeURIComponent(longitude) +
+        encodeURIComponent(
+          longitude
+        ) +
 
         '&d[karten_geojson]=' +
-        encodeURIComponent(geojsonText);
+        encodeURIComponent(
+          geojsonText
+        );
 
 
       // ----------------------------------------------------------
       // Kobo öffnen
       // ----------------------------------------------------------
 
-      window.location.href = koboUrl;
+      window.location.href =
+        koboUrl;
 
     };
 
   </script>
 
 </body>
+
 </html>
