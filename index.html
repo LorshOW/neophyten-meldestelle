@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Invasive Pflanze melden</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css"
+  />
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7f4;
+      color: #263228;
+    }
+
+    .header {
+      padding: 18px 16px 14px;
+      background: white;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      color: #245b32;
+    }
+
+    .header p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    #map {
+      width: 100%;
+      height: 58vh;
+      min-height: 390px;
+    }
+
+    .controls {
+      background: white;
+      padding: 14px;
+    }
+
+    .mode-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 13px 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .mode-buttons button {
+      flex: 1;
+      background: #e7eee8;
+      color: #234b2d;
+    }
+
+    .delete {
+      width: 100%;
+      margin-bottom: 10px;
+      background: #eeeeee;
+      color: #333;
+    }
+
+    .continue {
+      width: 100%;
+      background: #2f6d3e;
+      color: white;
+      font-weight: bold;
+      font-size: 17px;
+    }
+
+    .status {
+      margin: 4px 0 12px;
+      text-align: center;
+      font-size: 14px;
+      min-height: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>🌿 Invasive Pflanze melden</h1>
+    <p>
+      Markiere bitte den Fundort der Pflanze.<br>
+      Du kannst einen Standort setzen oder eine Fläche einzeichnen.
+    </p>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="controls">
+
+    <div class="mode-buttons">
+      <button id="pointButton">📍 Standort markieren</button>
+      <button id="polygonButton">⬡ Fläche einzeichnen</button>
+    </div>
+
+    <button class="delete" id="deleteButton">
+      🗑 Markierung löschen
+    </button>
+
+    <div class="status" id="status">
+      Bitte markiere den Fundort.
+    </div>
+
+    <button class="continue" id="continueButton">
+      Standort übernehmen &amp; weiter
+    </button>
+
+  </div>
+
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+  </script>
+
+  <script
+    src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.min.js">
+  </script>
+
+
+  <script>
+
+    const map = L.map('map').setView([50.7, 12.95], 12);
+
+    L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }
+    ).addTo(map);
+
+
+    let userLocation = null;
+    let drawingLayer = null;
+
+
+    // Eigenen GPS-Standort anzeigen
+    map.locate({
+      setView: true,
+      maxZoom: 17,
+      enableHighAccuracy: true
+    });
+
+
+    map.on('locationfound', function(e) {
+
+      userLocation = L.circleMarker(e.latlng, {
+        radius: 9,
+        weight: 3,
+        fillOpacity: 0.8
+      }).addTo(map);
+
+      L.circle(e.latlng, {
+        radius: e.accuracy,
+        weight: 1,
+        fillOpacity: 0.08
+      }).addTo(map);
+
+    });
+
+
+    map.on('locationerror', function() {
+      document.getElementById('status').textContent =
+        'GPS-Standort konnte nicht bestimmt werden. Du kannst den Fundort trotzdem auf der Karte markieren.';
+    });
+
+
+    function removeDrawing() {
+
+      if (drawingLayer) {
+        map.removeLayer(drawingLayer);
+        drawingLayer = null;
+      }
+
+      document.getElementById('status').textContent =
+        'Bitte markiere den Fundort.';
+    }
+
+
+    // Punkt setzen
+    document.getElementById('pointButton').onclick = function() {
+
+      removeDrawing();
+
+      map.pm.enableDraw('Marker', {
+        snappable: true
+      });
+
+      document.getElementById('status').textContent =
+        'Tippe auf den Fundort in der Karte.';
+    };
+
+
+    // Polygon zeichnen
+    document.getElementById('polygonButton').onclick = function() {
+
+      removeDrawing();
+
+      map.pm.enableDraw('Polygon', {
+        snappable: true,
+        allowSelfIntersection: false
+      });
+
+      document.getElementById('status').textContent =
+        'Zeichne die Fläche auf der Karte ein.';
+    };
+
+
+    // Neu erstellte Geometrie übernehmen
+    map.on('pm:create', function(e) {
+
+      if (drawingLayer && drawingLayer !== e.layer) {
+        map.removeLayer(drawingLayer);
+      }
+
+      drawingLayer = e.layer;
+
+      map.pm.disableDraw();
+
+      drawingLayer.pm.enable({
+        allowSelfIntersection: false
+      });
+
+      document.getElementById('status').textContent =
+        '✓ Fundort erfasst. Du kannst die Markierung noch verändern.';
+    });
+
+
+    // Löschen
+    document.getElementById('deleteButton').onclick = function() {
+      removeDrawing();
+      map.pm.disableDraw();
+    };
+
+
+    // Später: Übergabe an Kobo
+    document.getElementById('continueButton').onclick = function() {
+
+      if (!drawingLayer) {
+
+        alert('Bitte zuerst einen Standort oder eine Fläche markieren.');
+
+        return;
+      }
+
+
+      const geojson = drawingLayer.toGeoJSON();
+
+      console.log('Kartendaten:', geojson);
+
+      alert(
+        'Kartendaten wurden erfolgreich erfasst.\n\n' +
+        'Im nächsten Schritt verbinden wir diesen Button mit Kobo.'
+      );
+    };
+
+  </script>
+
+</body>
+</html>
