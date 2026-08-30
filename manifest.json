@@ -4,7 +4,7 @@
   "description": "Meldestelle für invasive Pflanzen",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#f4f5f1",
   "theme_color": "#245b32",
   "lang": "de",
