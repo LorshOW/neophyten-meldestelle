@@ -5,19 +5,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Invasive Pflanze melden</title>
+  <title>Invasive Pflanzen melden</title>
 
-  <!-- PWA -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#245b32">
 
-  <!-- Leaflet -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   >
 
-  <!-- Leaflet-Geoman -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css"
@@ -31,9 +28,130 @@
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f7f4;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f5f1;
       color: #263228;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+
+    /* =========================================================
+       STARTSEITE
+       ========================================================= */
+
+    #startArea {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 18px;
+    }
+
+    .start-card {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border: 1px solid #dfe5dd;
+      padding: 34px 26px 28px;
+      text-align: center;
+    }
+
+    .plant-mark {
+      width: 74px;
+      height: 74px;
+      margin: 0 auto 20px;
+      border: 2px solid #315f3b;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      line-height: 1;
+    }
+
+    .start-card h1 {
+      margin: 0;
+      color: #245b32;
+      font-size: 27px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .title-line {
+      width: 54px;
+      height: 2px;
+      background: #79917d;
+      margin: 18px auto;
+    }
+
+    .intro {
+      max-width: 440px;
+      margin: 0 auto 28px;
+      font-size: 16px;
+      line-height: 1.55;
+      color: #465148;
+    }
+
+    .start-button {
+      width: 100%;
+      border: 0;
+      padding: 16px 18px;
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .report-button {
+      background: #2f6d3e;
+      color: #ffffff;
+    }
+
+    .sync-button {
+      background: #ffffff;
+      color: #315f3b;
+      border: 1px solid #78907c;
+    }
+
+    .sync-info {
+      margin: 8px auto 0;
+      max-width: 430px;
+      color: #68716a;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .connection-line {
+      margin-top: 24px;
+      padding-top: 17px;
+      border-top: 1px solid #e5e8e3;
+      font-size: 13px;
+      color: #68716a;
+    }
+
+    .connection-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 6px;
+      background: #3e7b4b;
+    }
+
+    .connection-dot.offline {
+      background: #b27b30;
+    }
+
+
+    /* =========================================================
+       KARTENSEITE
+       ========================================================= */
+
+    #mapArea {
+      display: none;
     }
 
     .header {
@@ -54,12 +172,14 @@
       line-height: 1.4;
     }
 
-    /* =========================================================
-       ONLINE-BEREICH
-       ========================================================= */
-
-    #onlineArea {
+    .back-button {
       display: block;
+      margin: 12px auto 0;
+      padding: 7px 12px;
+      border: 0;
+      background: transparent;
+      color: #4d6752;
+      font-size: 14px;
     }
 
     #map {
@@ -80,16 +200,12 @@
       margin-bottom: 10px;
     }
 
-    button {
+    .mode-buttons button {
+      flex: 1;
       border: 0;
       border-radius: 8px;
       padding: 13px 12px;
       font-size: 16px;
-      cursor: pointer;
-    }
-
-    .mode-buttons button {
-      flex: 1;
       background: #e7eee8;
       color: #234b2d;
     }
@@ -110,12 +226,19 @@
     .delete {
       width: 100%;
       margin-bottom: 10px;
+      border: 0;
+      border-radius: 8px;
+      padding: 13px 12px;
+      font-size: 16px;
       background: #eeeeee;
       color: #333;
     }
 
     .continue {
       width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 13px 12px;
       background: #2f6d3e;
       color: white;
       font-weight: bold;
@@ -131,26 +254,27 @@
 
 
     /* =========================================================
-       OFFLINE-BEREICH
+       OFFLINE-MELDUNG
        ========================================================= */
 
     #offlineArea {
       display: none;
-      padding: 24px 16px 30px;
+      min-height: 100vh;
+      padding: 26px 16px;
     }
 
     .offline-box {
-      max-width: 620px;
-      margin: 0 auto;
+      max-width: 560px;
+      margin: 30px auto 0;
       background: white;
-      border-radius: 12px;
-      padding: 22px 18px;
+      border: 1px solid #dfe5dd;
+      padding: 28px 22px;
       text-align: center;
     }
 
     .offline-icon {
-      font-size: 42px;
-      margin-bottom: 10px;
+      font-size: 38px;
+      margin-bottom: 12px;
     }
 
     .offline-box h2 {
@@ -167,8 +291,7 @@
 
     .offline-note {
       background: #f3f7f3;
-      border-radius: 8px;
-      padding: 12px;
+      padding: 14px;
       margin: 18px 0;
       text-align: left;
       font-size: 14px;
@@ -177,38 +300,188 @@
 
     .offline-button {
       width: 100%;
+      border: 0;
+      border-radius: 8px;
+      padding: 14px 12px;
       background: #2f6d3e;
       color: white;
       font-weight: bold;
       font-size: 17px;
     }
 
-  </style>
+    .offline-back {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #536b58;
+      padding: 14px 8px 4px;
+      font-size: 14px;
+    }
 
+
+    /* =========================================================
+       KEIN NETZ BEI SYNCHRONISIERUNG
+       ========================================================= */
+
+    #syncOfflineArea {
+      display: none;
+      min-height: 100vh;
+      padding: 26px 16px;
+    }
+
+    .warning-box {
+      max-width: 560px;
+      margin: 60px auto 0;
+      background: white;
+      border: 1px solid #dfe5dd;
+      padding: 30px 22px;
+      text-align: center;
+    }
+
+    .warning-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .warning-box h2 {
+      margin: 0 0 14px;
+      color: #704f21;
+      font-size: 22px;
+    }
+
+    .warning-box p {
+      font-size: 15px;
+      line-height: 1.55;
+      margin: 0 0 20px;
+    }
+
+    .return-button {
+      width: 100%;
+      border: 1px solid #78907c;
+      background: white;
+      color: #315f3b;
+      padding: 14px 12px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+
+    @media (max-width: 480px) {
+
+      #startArea {
+        padding: 18px 14px;
+      }
+
+      .start-card {
+        padding: 28px 20px 24px;
+      }
+
+      .start-card h1 {
+        font-size: 24px;
+      }
+
+      .intro {
+        font-size: 15px;
+      }
+
+    }
+
+  </style>
 </head>
 
 
 <body>
 
-  <div class="header">
 
-    <h1>🌿 Invasive Pflanze melden</h1>
+  <!-- =========================================================
+       STARTSEITE
+       ========================================================= -->
 
-    <p id="headerText">
-      Markiere bitte den Fundort der Pflanze.<br>
-      Du kannst einen Standort setzen oder eine Fläche einzeichnen.
-    </p>
+  <section id="startArea">
 
-  </div>
+    <div class="start-card">
+
+      <div class="plant-mark">🌿</div>
+
+      <h1>Invasive Pflanzen melden</h1>
+
+      <div class="title-line"></div>
+
+      <p class="intro">
+        Hilf mit, invasive Pflanzen in unserer Region zu erfassen
+        und ihre Ausbreitung besser zu dokumentieren.
+      </p>
+
+
+      <button
+        class="start-button report-button"
+        id="startReportButton"
+      >
+        🌿 Pflanze melden
+      </button>
+
+
+      <button
+        class="start-button sync-button"
+        id="syncButton"
+      >
+        ↻ Offlinedaten übertragen
+      </button>
+
+
+      <p class="sync-info">
+        Hast du zuvor eine Meldung ohne Internet erfasst?
+        Hier kannst du gespeicherte Meldungen übertragen,
+        sobald wieder eine Internetverbindung besteht.
+      </p>
+
+
+      <div class="connection-line">
+
+        <span
+          class="connection-dot"
+          id="connectionDot"
+        ></span>
+
+        <span id="connectionText">
+          Internetverbindung vorhanden
+        </span>
+
+      </div>
+
+    </div>
+
+  </section>
+
 
 
   <!-- =========================================================
-       ONLINE
+       KARTE
        ========================================================= -->
 
-  <div id="onlineArea">
+  <section id="mapArea">
+
+    <div class="header">
+
+      <h1>🌿 Invasive Pflanze melden</h1>
+
+      <p>
+        Markiere bitte den Fundort der Pflanze.<br>
+        Du kannst einen Standort setzen oder eine Fläche einzeichnen.
+      </p>
+
+      <button
+        class="back-button"
+        id="mapBackButton"
+      >
+        ← Zurück zur Startseite
+      </button>
+
+    </div>
+
 
     <div id="map"></div>
+
 
     <div class="controls">
 
@@ -236,60 +509,66 @@
       </div>
 
 
-      <button class="delete" id="deleteButton">
+      <button
+        class="delete"
+        id="deleteButton"
+      >
         🗑 Ganze Markierung löschen
       </button>
 
 
-      <div class="status" id="status">
+      <div
+        class="status"
+        id="status"
+      >
         Bitte markiere den Fundort.
       </div>
 
 
-      <button class="continue" id="continueButton">
+      <button
+        class="continue"
+        id="continueButton"
+      >
         Standort übernehmen &amp; weiter
       </button>
 
     </div>
 
-  </div>
+  </section>
+
 
 
   <!-- =========================================================
-       OFFLINE
+       OFFLINE ERFASSEN
        ========================================================= -->
 
-  <div id="offlineArea">
+  <section id="offlineArea">
 
     <div class="offline-box">
 
-      <div class="offline-icon">
-        📡
-      </div>
+      <div class="offline-icon">📡</div>
 
       <h2>Keine Internetverbindung</h2>
 
       <p>
-        Kein Problem. Deine Meldung kann trotzdem
-        aufgenommen werden.
+        Deine Meldung kann trotzdem aufgenommen werden.
       </p>
+
 
       <div class="offline-note">
 
-        <strong>So geht es weiter:</strong><br><br>
+        <strong>Offline erfassen:</strong><br><br>
 
-        📍 Dein Fundort wird im nächsten Schritt
-        direkt per GPS erfasst.<br><br>
+        📍 Dein Fundort wird im nächsten Schritt direkt per GPS erfasst.<br><br>
 
-        📝 Anschließend kannst du die Meldung
-        wie gewohnt ausfüllen.<br><br>
+        📝 Anschließend kannst du die Meldung wie gewohnt ausfüllen.<br><br>
 
-        📷 Auch Fotos können zur Meldung
-        hinzugefügt werden.<br><br>
+        📷 Auch Fotos können hinzugefügt werden.<br><br>
 
-        💾 Die Meldung wird auf deinem Gerät
-        gespeichert und kann übertragen werden,
-        sobald wieder eine Internetverbindung besteht.
+        💾 Nach dem Absenden bleibt die Meldung auf deinem Gerät gespeichert.
+        Sobald du später wieder Internet hast, öffne diese Meldestelle
+        und wähle auf der Startseite
+        <strong>„Offlinedaten übertragen“</strong>.
 
       </div>
 
@@ -301,27 +580,66 @@
         📍 Offline-Meldung starten
       </button>
 
+
+      <button
+        class="offline-back"
+        id="offlineBackButton"
+      >
+        ← Zurück zur Startseite
+      </button>
+
     </div>
 
-  </div>
+  </section>
 
 
-  <!-- Leaflet -->
+
+  <!-- =========================================================
+       SYNCHRONISIERUNG OHNE INTERNET
+       ========================================================= -->
+
+  <section id="syncOfflineArea">
+
+    <div class="warning-box">
+
+      <div class="warning-icon">📡</div>
+
+      <h2>Keine Internetverbindung</h2>
+
+      <p>
+        Offlinedaten können erst übertragen werden,
+        wenn wieder eine Internetverbindung besteht.
+        Deine gespeicherten Meldungen bleiben erhalten.
+      </p>
+
+
+      <button
+        class="return-button"
+        id="syncBackButton"
+      >
+        ← Zurück zur Startseite
+      </button>
+
+    </div>
+
+  </section>
+
+
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-
-  <!-- Leaflet-Geoman -->
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.min.js"></script>
 
 
   <script>
 
     // ============================================================
-    // GRUNDWERTE
+    // KOBO
     // ============================================================
 
     const KOBO_URL =
       'https://ee-eu.kobotoolbox.org/x/aeG09o4G';
+
 
 
     // ============================================================
@@ -330,83 +648,89 @@
 
     if ('serviceWorker' in navigator) {
 
-      window.addEventListener(
-        'load',
-        function() {
+      window.addEventListener('load', function() {
 
-          navigator.serviceWorker
-            .register('./service-worker.js')
-            .then(function() {
-              console.log('Service Worker aktiv.');
-            })
-            .catch(function(error) {
-              console.error(
-                'Service Worker Fehler:',
-                error
-              );
-            });
+        navigator.serviceWorker
+          .register('./service-worker.js')
+          .catch(function(error) {
+            console.error('Service Worker Fehler:', error);
+          });
 
-        }
-      );
+      });
 
     }
 
 
+
     // ============================================================
-    // ONLINE / OFFLINE ANZEIGE
+    // BEREICHE
     // ============================================================
 
-    function updateMode() {
+    const startArea =
+      document.getElementById('startArea');
 
-      const onlineArea =
-        document.getElementById('onlineArea');
+    const mapArea =
+      document.getElementById('mapArea');
 
-      const offlineArea =
-        document.getElementById('offlineArea');
+    const offlineArea =
+      document.getElementById('offlineArea');
 
-      const headerText =
-        document.getElementById('headerText');
+    const syncOfflineArea =
+      document.getElementById('syncOfflineArea');
+
+
+
+    function hideAllAreas() {
+
+      startArea.style.display = 'none';
+      mapArea.style.display = 'none';
+      offlineArea.style.display = 'none';
+      syncOfflineArea.style.display = 'none';
+
+    }
+
+
+
+    function showStart() {
+
+      hideAllAreas();
+
+      startArea.style.display = 'flex';
+
+      updateConnectionStatus();
+
+    }
+
+
+
+    // ============================================================
+    // INTERNETSTATUS
+    // ============================================================
+
+    function updateConnectionStatus() {
+
+      const dot =
+        document.getElementById('connectionDot');
+
+      const text =
+        document.getElementById('connectionText');
 
 
       if (navigator.onLine) {
 
-        onlineArea.style.display =
-          'block';
+        dot.classList.remove('offline');
 
-        offlineArea.style.display =
-          'none';
-
-        headerText.innerHTML =
-          'Markiere bitte den Fundort der Pflanze.<br>' +
-          'Du kannst einen Standort setzen oder eine Fläche einzeichnen.';
-
-
-        // Leaflet muss nach einem Wechsel zurück auf
-        // Online seine Größe neu berechnen.
-
-        setTimeout(
-          function() {
-
-            if (typeof map !== 'undefined') {
-              map.invalidateSize();
-            }
-
-          },
-          150
-        );
+        text.textContent =
+          'Internetverbindung vorhanden';
 
       }
 
       else {
 
-        onlineArea.style.display =
-          'none';
+        dot.classList.add('offline');
 
-        offlineArea.style.display =
-          'block';
-
-        headerText.innerHTML =
-          'Auch ohne Internet kannst du eine Meldung erfassen.';
+        text.textContent =
+          'Derzeit keine Internetverbindung';
 
       }
 
@@ -415,14 +739,128 @@
 
     window.addEventListener(
       'online',
-      updateMode
+      updateConnectionStatus
     );
 
 
     window.addEventListener(
       'offline',
-      updateMode
+      updateConnectionStatus
     );
+
+
+
+    // ============================================================
+    // PFLANZE MELDEN
+    // ============================================================
+
+    document.getElementById(
+      'startReportButton'
+    ).onclick = function() {
+
+
+      hideAllAreas();
+
+
+      if (navigator.onLine) {
+
+        mapArea.style.display =
+          'block';
+
+
+        setTimeout(function() {
+
+          map.invalidateSize();
+
+          map.locate({
+            setView: true,
+            maxZoom: 17,
+            enableHighAccuracy: true
+          });
+
+        }, 150);
+
+      }
+
+      else {
+
+        offlineArea.style.display =
+          'block';
+
+      }
+
+    };
+
+
+
+    // ============================================================
+    // OFFLINEDATEN ÜBERTRAGEN
+    // ============================================================
+
+    document.getElementById(
+      'syncButton'
+    ).onclick = function() {
+
+
+      if (!navigator.onLine) {
+
+        hideAllAreas();
+
+        syncOfflineArea.style.display =
+          'block';
+
+        return;
+
+      }
+
+
+      /*
+       * Öffnet bewusst die nackte Kobo-Adresse.
+       * Dadurch wird das bereits im Browser gespeicherte
+       * Online-Offline-Formular geöffnet und Kobo kann
+       * wartende Offline-Datensätze übertragen.
+       */
+
+      window.location.href =
+        KOBO_URL;
+
+    };
+
+
+
+    // ============================================================
+    // OFFLINE-MELDUNG STARTEN
+    // ============================================================
+
+    document.getElementById(
+      'offlineButton'
+    ).onclick = function() {
+
+      window.location.href =
+        KOBO_URL;
+
+    };
+
+
+
+    // ============================================================
+    // ZURÜCK
+    // ============================================================
+
+    document.getElementById(
+      'mapBackButton'
+    ).onclick = showStart;
+
+
+    document.getElementById(
+      'offlineBackButton'
+    ).onclick = showStart;
+
+
+    document.getElementById(
+      'syncBackButton'
+    ).onclick = showStart;
+
 
 
     // ============================================================
@@ -437,7 +875,7 @@
 
 
     L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
         maxZoom: 19,
         attribution:
@@ -446,23 +884,16 @@
     ).addTo(map);
 
 
+
     let userLocation = null;
     let accuracyCircle = null;
     let drawingLayer = null;
 
 
-    // ============================================================
-    // GPS ONLINE
-    // ============================================================
 
-    map.locate(
-      {
-        setView: true,
-        maxZoom: 17,
-        enableHighAccuracy: true
-      }
-    );
-
+    // ============================================================
+    // GPS
+    // ============================================================
 
     map.on(
       'locationfound',
@@ -516,6 +947,7 @@
     );
 
 
+
     // ============================================================
     // ZEICHNUNG ENTFERNEN
     // ============================================================
@@ -542,6 +974,7 @@
         'Bitte markiere den Fundort.';
 
     }
+
 
 
     // ============================================================
@@ -571,6 +1004,7 @@
     };
 
 
+
     // ============================================================
     // FLÄCHE
     // ============================================================
@@ -597,6 +1031,7 @@
         'Zeichne die Fläche auf der Karte ein.';
 
     };
+
 
 
     // ============================================================
@@ -661,6 +1096,7 @@
     );
 
 
+
     // ============================================================
     // MARKIERUNG LÖSCHEN
     // ============================================================
@@ -674,8 +1110,8 @@
     };
 
 
+
     // ============================================================
-    // ONLINE:
     // KARTENDATEN AN KOBO
     // ============================================================
 
@@ -712,15 +1148,10 @@
 
 
       let kartenTyp = '';
-
       let latitude = '';
-
       let longitude = '';
 
 
-      // ----------------------------------------------------------
-      // PUNKT
-      // ----------------------------------------------------------
 
       if (
         geojson.geometry.type ===
@@ -730,22 +1161,14 @@
         kartenTyp =
           'Punkt';
 
-
         longitude =
-          geojson.geometry
-            .coordinates[0];
-
+          geojson.geometry.coordinates[0];
 
         latitude =
-          geojson.geometry
-            .coordinates[1];
+          geojson.geometry.coordinates[1];
 
       }
 
-
-      // ----------------------------------------------------------
-      // FLÄCHE
-      // ----------------------------------------------------------
 
       else if (
         geojson.geometry.type ===
@@ -765,7 +1188,6 @@
         latitude =
           center.lat;
 
-
         longitude =
           center.lng;
 
@@ -783,19 +1205,13 @@
       }
 
 
+
       const geojsonText =
         JSON.stringify(
           geojson.geometry
         );
 
 
-      // ----------------------------------------------------------
-      // KOBO-URL
-      //
-      // WICHTIG:
-      // karten_online = ja
-      // blendet in Kobo die Offline-GPS-Frage aus.
-      // ----------------------------------------------------------
 
       const koboUrl =
         KOBO_URL +
@@ -837,26 +1253,12 @@
     };
 
 
-    // ============================================================
-    // OFFLINE:
-    // DIREKT ZUM BEREITS GESPEICHERTEN KOBO-FORMULAR
-    // ============================================================
-
-    document.getElementById(
-      'offlineButton'
-    ).onclick = function() {
-
-      window.location.href =
-        KOBO_URL;
-
-    };
-
 
     // ============================================================
-    // STARTMODUS FESTLEGEN
+    // START
     // ============================================================
 
-    updateMode();
+    updateConnectionStatus();
 
   </script>
 
