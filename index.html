@@ -54,14 +54,12 @@
       line-height: 1.4;
     }
 
-    #connectionStatus {
-      display: none;
-      padding: 9px 14px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: bold;
-      background: #fff3cd;
-      color: #664d03;
+    /* =========================================================
+       ONLINE-BEREICH
+       ========================================================= */
+
+    #onlineArea {
+      display: block;
     }
 
     #map {
@@ -131,7 +129,62 @@
       min-height: 18px;
     }
 
+
+    /* =========================================================
+       OFFLINE-BEREICH
+       ========================================================= */
+
+    #offlineArea {
+      display: none;
+      padding: 24px 16px 30px;
+    }
+
+    .offline-box {
+      max-width: 620px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 22px 18px;
+      text-align: center;
+    }
+
+    .offline-icon {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    .offline-box h2 {
+      margin: 0 0 12px;
+      color: #245b32;
+      font-size: 22px;
+    }
+
+    .offline-box p {
+      margin: 0 0 14px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .offline-note {
+      background: #f3f7f3;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 18px 0;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .offline-button {
+      width: 100%;
+      background: #2f6d3e;
+      color: white;
+      font-weight: bold;
+      font-size: 17px;
+    }
+
   </style>
+
 </head>
 
 
@@ -141,7 +194,7 @@
 
     <h1>🌿 Invasive Pflanze melden</h1>
 
-    <p>
+    <p id="headerText">
       Markiere bitte den Fundort der Pflanze.<br>
       Du kannst einen Standort setzen oder eine Fläche einzeichnen.
     </p>
@@ -149,54 +202,106 @@
   </div>
 
 
-  <!-- Wird nur bei fehlender Internetverbindung angezeigt -->
-  <div id="connectionStatus">
-    ⚠️ Keine Internetverbindung – GPS kann trotzdem funktionieren.
+  <!-- =========================================================
+       ONLINE
+       ========================================================= -->
+
+  <div id="onlineArea">
+
+    <div id="map"></div>
+
+    <div class="controls">
+
+      <div class="mode-buttons">
+
+        <button id="pointButton">
+          📍 Standort markieren
+        </button>
+
+        <button id="polygonButton">
+          ⬡ Fläche einzeichnen
+        </button>
+
+      </div>
+
+
+      <div class="help">
+
+        <strong>Fläche korrigieren:</strong><br>
+
+        Die weißen Eckpunkte kannst du verschieben.
+        Halte einen Eckpunkt <strong>länger gedrückt</strong>,
+        um ihn zu löschen.
+
+      </div>
+
+
+      <button class="delete" id="deleteButton">
+        🗑 Ganze Markierung löschen
+      </button>
+
+
+      <div class="status" id="status">
+        Bitte markiere den Fundort.
+      </div>
+
+
+      <button class="continue" id="continueButton">
+        Standort übernehmen &amp; weiter
+      </button>
+
+    </div>
+
   </div>
 
 
-  <div id="map"></div>
+  <!-- =========================================================
+       OFFLINE
+       ========================================================= -->
+
+  <div id="offlineArea">
+
+    <div class="offline-box">
+
+      <div class="offline-icon">
+        📡
+      </div>
+
+      <h2>Keine Internetverbindung</h2>
+
+      <p>
+        Kein Problem. Deine Meldung kann trotzdem
+        aufgenommen werden.
+      </p>
+
+      <div class="offline-note">
+
+        <strong>So geht es weiter:</strong><br><br>
+
+        📍 Dein Fundort wird im nächsten Schritt
+        direkt per GPS erfasst.<br><br>
+
+        📝 Anschließend kannst du die Meldung
+        wie gewohnt ausfüllen.<br><br>
+
+        📷 Auch Fotos können zur Meldung
+        hinzugefügt werden.<br><br>
+
+        💾 Die Meldung wird auf deinem Gerät
+        gespeichert und kann übertragen werden,
+        sobald wieder eine Internetverbindung besteht.
+
+      </div>
 
 
-  <div class="controls">
-
-    <div class="mode-buttons">
-
-      <button id="pointButton">
-        📍 Standort markieren
+      <button
+        class="offline-button"
+        id="offlineButton"
+      >
+        📍 Offline-Meldung starten
       </button>
 
-      <button id="polygonButton">
-        ⬡ Fläche einzeichnen
-      </button>
-
     </div>
-
-
-    <div class="help">
-
-      <strong>Fläche korrigieren:</strong><br>
-
-      Die weißen Eckpunkte kannst du verschieben.
-      Halte einen Eckpunkt <strong>länger gedrückt</strong>,
-      um ihn zu löschen.
-
-    </div>
-
-
-    <button class="delete" id="deleteButton">
-      🗑 Ganze Markierung löschen
-    </button>
-
-
-    <div class="status" id="status">
-      Bitte markiere den Fundort.
-    </div>
-
-
-    <button class="continue" id="continueButton">
-      Standort übernehmen &amp; weiter
-    </button>
 
   </div>
 
@@ -212,43 +317,96 @@
   <script>
 
     // ============================================================
+    // GRUNDWERTE
+    // ============================================================
+
+    const KOBO_URL =
+      'https://ee-eu.kobotoolbox.org/x/aeG09o4G';
+
+
+    // ============================================================
     // SERVICE WORKER
     // ============================================================
 
     if ('serviceWorker' in navigator) {
 
-      window.addEventListener('load', function() {
+      window.addEventListener(
+        'load',
+        function() {
 
-        navigator.serviceWorker
-          .register('./service-worker.js')
-          .then(function() {
-            console.log('Service Worker aktiv.');
-          })
-          .catch(function(error) {
-            console.error('Service Worker Fehler:', error);
-          });
+          navigator.serviceWorker
+            .register('./service-worker.js')
+            .then(function() {
+              console.log('Service Worker aktiv.');
+            })
+            .catch(function(error) {
+              console.error(
+                'Service Worker Fehler:',
+                error
+              );
+            });
 
-      });
+        }
+      );
 
     }
 
 
     // ============================================================
-    // ONLINE / OFFLINE STATUS
+    // ONLINE / OFFLINE ANZEIGE
     // ============================================================
 
-    function updateConnectionStatus() {
+    function updateMode() {
 
-      const box =
-        document.getElementById('connectionStatus');
+      const onlineArea =
+        document.getElementById('onlineArea');
+
+      const offlineArea =
+        document.getElementById('offlineArea');
+
+      const headerText =
+        document.getElementById('headerText');
+
 
       if (navigator.onLine) {
 
-        box.style.display = 'none';
+        onlineArea.style.display =
+          'block';
 
-      } else {
+        offlineArea.style.display =
+          'none';
 
-        box.style.display = 'block';
+        headerText.innerHTML =
+          'Markiere bitte den Fundort der Pflanze.<br>' +
+          'Du kannst einen Standort setzen oder eine Fläche einzeichnen.';
+
+
+        // Leaflet muss nach einem Wechsel zurück auf
+        // Online seine Größe neu berechnen.
+
+        setTimeout(
+          function() {
+
+            if (typeof map !== 'undefined') {
+              map.invalidateSize();
+            }
+
+          },
+          150
+        );
+
+      }
+
+      else {
+
+        onlineArea.style.display =
+          'none';
+
+        offlineArea.style.display =
+          'block';
+
+        headerText.innerHTML =
+          'Auch ohne Internet kannst du eine Meldung erfassen.';
 
       }
 
@@ -257,17 +415,14 @@
 
     window.addEventListener(
       'online',
-      updateConnectionStatus
+      updateMode
     );
 
 
     window.addEventListener(
       'offline',
-      updateConnectionStatus
+      updateMode
     );
-
-
-    updateConnectionStatus();
 
 
     // ============================================================
@@ -285,7 +440,8 @@
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
         maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution:
+          '&copy; OpenStreetMap contributors'
       }
     ).addTo(map);
 
@@ -296,16 +452,16 @@
 
 
     // ============================================================
-    // GPS-STANDORT
+    // GPS ONLINE
     // ============================================================
 
-    map.locate({
-
-      setView: true,
-      maxZoom: 17,
-      enableHighAccuracy: true
-
-    });
+    map.locate(
+      {
+        setView: true,
+        maxZoom: 17,
+        enableHighAccuracy: true
+      }
+    );
 
 
     map.on(
@@ -313,16 +469,12 @@
       function(e) {
 
         if (userLocation) {
-
           map.removeLayer(userLocation);
-
         }
 
 
         if (accuracyCircle) {
-
           map.removeLayer(accuracyCircle);
-
         }
 
 
@@ -375,7 +527,9 @@
 
       if (drawingLayer) {
 
-        map.removeLayer(drawingLayer);
+        map.removeLayer(
+          drawingLayer
+        );
 
         drawingLayer = null;
 
@@ -391,7 +545,7 @@
 
 
     // ============================================================
-    // PUNKT MARKIEREN
+    // PUNKT
     // ============================================================
 
     document.getElementById(
@@ -418,7 +572,7 @@
 
 
     // ============================================================
-    // FLÄCHE EINZEICHNEN
+    // FLÄCHE
     // ============================================================
 
     document.getElementById(
@@ -472,10 +626,6 @@
         map.pm.disableDraw();
 
 
-        // --------------------------------------------------------
-        // Punkt
-        // --------------------------------------------------------
-
         if (
           drawingLayer instanceof L.Marker
         ) {
@@ -489,11 +639,6 @@
             '✓ Standort erfasst. Du kannst den Punkt noch verschieben.';
 
         }
-
-
-        // --------------------------------------------------------
-        // Fläche
-        // --------------------------------------------------------
 
         else {
 
@@ -517,7 +662,7 @@
 
 
     // ============================================================
-    // GANZE MARKIERUNG LÖSCHEN
+    // MARKIERUNG LÖSCHEN
     // ============================================================
 
     document.getElementById(
@@ -530,7 +675,8 @@
 
 
     // ============================================================
-    // KARTENDATEN AN KOBO ÜBERGEBEN
+    // ONLINE:
+    // KARTENDATEN AN KOBO
     // ============================================================
 
     document.getElementById(
@@ -553,10 +699,6 @@
         drawingLayer.toGeoJSON();
 
 
-      // ----------------------------------------------------------
-      // Eindeutige Melde-ID
-      // ----------------------------------------------------------
-
       const meldeId =
         'NEO-' +
         Date.now()
@@ -577,8 +719,7 @@
 
 
       // ----------------------------------------------------------
-      // Punkt
-      // GeoJSON = [Längengrad, Breitengrad]
+      // PUNKT
       // ----------------------------------------------------------
 
       if (
@@ -603,7 +744,7 @@
 
 
       // ----------------------------------------------------------
-      // Fläche
+      // FLÄCHE
       // ----------------------------------------------------------
 
       else if (
@@ -631,10 +772,6 @@
       }
 
 
-      // ----------------------------------------------------------
-      // Unbekannte Geometrie
-      // ----------------------------------------------------------
-
       else {
 
         alert(
@@ -646,10 +783,6 @@
       }
 
 
-      // ----------------------------------------------------------
-      // Vollständige Geometrie
-      // ----------------------------------------------------------
-
       const geojsonText =
         JSON.stringify(
           geojson.geometry
@@ -657,11 +790,15 @@
 
 
       // ----------------------------------------------------------
-      // Kobo URL
+      // KOBO-URL
+      //
+      // WICHTIG:
+      // karten_online = ja
+      // blendet in Kobo die Offline-GPS-Frage aus.
       // ----------------------------------------------------------
 
       const koboUrl =
-        'https://ee-eu.kobotoolbox.org/x/aeG09o4G' +
+        KOBO_URL +
 
         '?d[melde_id]=' +
         encodeURIComponent(
@@ -686,17 +823,40 @@
         '&d[karten_geojson]=' +
         encodeURIComponent(
           geojsonText
+        ) +
+
+        '&d[karten_online]=' +
+        encodeURIComponent(
+          'ja'
         );
 
-
-      // ----------------------------------------------------------
-      // Kobo öffnen
-      // ----------------------------------------------------------
 
       window.location.href =
         koboUrl;
 
     };
+
+
+    // ============================================================
+    // OFFLINE:
+    // DIREKT ZUM BEREITS GESPEICHERTEN KOBO-FORMULAR
+    // ============================================================
+
+    document.getElementById(
+      'offlineButton'
+    ).onclick = function() {
+
+      window.location.href =
+        KOBO_URL;
+
+    };
+
+
+    // ============================================================
+    // STARTMODUS FESTLEGEN
+    // ============================================================
+
+    updateMode();
 
   </script>
 
