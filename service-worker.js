@@ -1,9 +1,11 @@
-const CACHE_NAME = 'neophyten-app-v2';
+const CACHE_NAME = 'neophyten-app-v3';
 
 const APP_FILES = [
   './',
   './index.html',
   './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   'https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css',
@@ -152,12 +154,7 @@ self.addEventListener('fetch', event => {
           return cachedResponse;
         }
 
-        return fetch(request)
-          .then(response => {
-
-            return response;
-
-          });
+        return fetch(request);
 
       })
 
