@@ -6,11 +6,15 @@
 
   <title>Invasive Pflanze melden</title>
 
-  <link rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  >
 
-  <link rel="stylesheet"
-        href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css"
+  >
 
   <style>
     * {
@@ -151,12 +155,15 @@
 
   </div>
 
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.min.js"></script>
 
   <script>
+
+    // ------------------------------------------------------------
+    // Karte
+    // ------------------------------------------------------------
 
     const map = L.map('map').setView([50.7, 12.95], 12);
 
@@ -174,7 +181,10 @@
     let drawingLayer = null;
 
 
+    // ------------------------------------------------------------
     // GPS-Standort bestimmen
+    // ------------------------------------------------------------
+
     map.locate({
       setView: true,
       maxZoom: 17,
@@ -215,6 +225,10 @@
     });
 
 
+    // ------------------------------------------------------------
+    // Vorhandene Zeichnung entfernen
+    // ------------------------------------------------------------
+
     function removeDrawing() {
 
       map.pm.disableDraw();
@@ -230,7 +244,10 @@
     }
 
 
+    // ------------------------------------------------------------
     // Standort markieren
+    // ------------------------------------------------------------
+
     document.getElementById('pointButton').onclick = function() {
 
       removeDrawing();
@@ -245,7 +262,10 @@
     };
 
 
+    // ------------------------------------------------------------
     // Fläche einzeichnen
+    // ------------------------------------------------------------
+
     document.getElementById('polygonButton').onclick = function() {
 
       removeDrawing();
@@ -261,7 +281,10 @@
     };
 
 
+    // ------------------------------------------------------------
     // Markierung wurde erstellt
+    // ------------------------------------------------------------
+
     map.on('pm:create', function(e) {
 
       if (drawingLayer && drawingLayer !== e.layer) {
@@ -271,6 +294,7 @@
       drawingLayer = e.layer;
 
       map.pm.disableDraw();
+
 
       // Einzelner Standort
       if (drawingLayer instanceof L.Marker) {
@@ -298,7 +322,10 @@
     });
 
 
+    // ------------------------------------------------------------
     // Ganze Markierung löschen
+    // ------------------------------------------------------------
+
     document.getElementById('deleteButton').onclick = function() {
 
       removeDrawing();
@@ -306,62 +333,123 @@
     };
 
 
-   // Übergabe der Kartendaten an Kobo
-document.getElementById('continueButton').onclick = function() {
+    // ------------------------------------------------------------
+    // Kartendaten an Kobo übergeben
+    // ------------------------------------------------------------
 
-  if (!drawingLayer) {
-    alert('Bitte zuerst einen Standort oder eine Fläche markieren.');
-    return;
-  }
+    document.getElementById('continueButton').onclick = function() {
 
-  const geojson = drawingLayer.toGeoJSON();
+      if (!drawingLayer) {
 
-  // Eindeutige Melde-ID erzeugen
-  const meldeId =
-    'NEO-' +
-    Date.now().toString(36).toUpperCase() +
-    '-' +
-    Math.random().toString(36).substring(2, 7).toUpperCase();
+        alert(
+          'Bitte zuerst einen Standort oder eine Fläche markieren.'
+        );
 
-  let kartenTyp = '';
-  let latitude = '';
-  let longitude = '';
+        return;
+      }
 
-  // Einzelner Standort
-  if (geojson.geometry.type === 'Point') {
 
-    kartenTyp = 'Punkt';
+      const geojson = drawingLayer.toGeoJSON();
 
-    longitude = geojson.geometry.coordinates[0];
-    latitude  = geojson.geometry.coordinates[1];
 
-  }
+      // Eindeutige Melde-ID erzeugen
+      const meldeId =
+        'NEO-' +
+        Date.now().toString(36).toUpperCase() +
+        '-' +
+        Math.random().toString(36).substring(2, 7).toUpperCase();
 
-  // Fläche
-  else if (geojson.geometry.type === 'Polygon') {
 
-    kartenTyp = 'Flaeche';
+      let kartenTyp = '';
+      let latitude = '';
+      let longitude = '';
 
-    // Mittelpunkt der Fläche zusätzlich speichern
-    const center = drawingLayer.getBounds().getCenter();
 
-    latitude = center.lat;
-    longitude = center.lng;
+      // ----------------------------------------------------------
+      // Punkt
+      // GeoJSON speichert Koordinaten als:
+      // [Längengrad, Breitengrad]
+      // ----------------------------------------------------------
 
-  }
+      if (geojson.geometry.type === 'Point') {
 
-  // Komplette Geometrie als GeoJSON speichern
-  const geojsonText = JSON.stringify(geojson.geometry);
+        kartenTyp = 'Punkt';
 
-  const koboUrl =
-    'https://ee-eu.kobotoolbox.org/x/aeG09o4G' +
-    '?d[melde_id]=' + encodeURIComponent(meldeId) +
-    '&d[karten_typ]=' + encodeURIComponent(kartenTyp) +
-    '&d[karten_lat]=' + encodeURIComponent(latitude) +
-    '&d[karten_lon]=' + encodeURIComponent(longitude) +
-    '&d[karten_geojson]=' + encodeURIComponent(geojsonText);
+        longitude = geojson.geometry.coordinates[0];
+        latitude = geojson.geometry.coordinates[1];
 
-  // Kobo-Formular öffnen
-  window.location.href = koboUrl;
+      }
 
-};
+
+      // ----------------------------------------------------------
+      // Fläche
+      // Zusätzlich wird der Mittelpunkt der Fläche gespeichert.
+      // Die vollständige Fläche bleibt im GeoJSON erhalten.
+      // ----------------------------------------------------------
+
+      else if (geojson.geometry.type === 'Polygon') {
+
+        kartenTyp = 'Flaeche';
+
+        const center = drawingLayer.getBounds().getCenter();
+
+        latitude = center.lat;
+        longitude = center.lng;
+
+      }
+
+
+      // ----------------------------------------------------------
+      // Sicherheit: unbekannter Geometrietyp
+      // ----------------------------------------------------------
+
+      else {
+
+        alert(
+          'Die Markierung konnte nicht verarbeitet werden. Bitte lösche sie und zeichne sie erneut.'
+        );
+
+        return;
+
+      }
+
+
+      // Vollständige Geometrie kompakt als GeoJSON
+      const geojsonText =
+        JSON.stringify(geojson.geometry);
+
+
+      // ----------------------------------------------------------
+      // Kobo-Adresse mit Vorbefüllung erstellen
+      // ----------------------------------------------------------
+
+      const koboUrl =
+        'https://ee-eu.kobotoolbox.org/x/aeG09o4G' +
+        '?d[melde_id]=' +
+        encodeURIComponent(meldeId) +
+
+        '&d[karten_typ]=' +
+        encodeURIComponent(kartenTyp) +
+
+        '&d[karten_lat]=' +
+        encodeURIComponent(latitude) +
+
+        '&d[karten_lon]=' +
+        encodeURIComponent(longitude) +
+
+        '&d[karten_geojson]=' +
+        encodeURIComponent(geojsonText);
+
+
+      // ----------------------------------------------------------
+      // Kobo öffnen
+      // ----------------------------------------------------------
+
+      window.location.href = koboUrl;
+
+    };
+
+  </script>
+
+</body>
+</html>
