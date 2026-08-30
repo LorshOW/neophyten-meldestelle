@@ -8,6 +8,7 @@
   <title>Invasive Pflanzen melden</title>
 
   <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="theme-color" content="#245b32">
 
   <link
@@ -116,12 +117,32 @@
       border: 1px solid #78907c;
     }
 
+    .save-button {
+      background: #f3f7f3;
+      color: #315f3b;
+      border: 1px solid #b5c4b8;
+      margin-top: 8px;
+    }
+
     .sync-info {
       margin: 8px auto 0;
       max-width: 430px;
       color: #68716a;
       font-size: 13px;
       line-height: 1.45;
+    }
+
+    .save-info {
+      display: none;
+      margin: 8px auto 0;
+      max-width: 430px;
+      background: #f3f7f3;
+      border: 1px solid #d6e0d7;
+      padding: 13px;
+      color: #465148;
+      font-size: 14px;
+      line-height: 1.5;
+      text-align: left;
     }
 
     .connection-line {
@@ -436,6 +457,20 @@
       </p>
 
 
+      <button
+        class="start-button save-button"
+        id="saveButton"
+      >
+        📱 Meldestelle auf dem Handy speichern
+      </button>
+
+
+      <div
+        class="save-info"
+        id="saveInfo"
+      ></div>
+
+
       <div class="connection-line">
 
         <span
@@ -663,6 +698,158 @@
 
 
     // ============================================================
+    // INSTALLATION / STARTBILDSCHIRM
+    // ============================================================
+
+    let deferredInstallPrompt = null;
+
+    const saveButton =
+      document.getElementById('saveButton');
+
+    const saveInfo =
+      document.getElementById('saveInfo');
+
+
+    const isIOS =
+      /iphone|ipad|ipod/i.test(
+        window.navigator.userAgent
+      );
+
+
+    const isStandalone =
+      window.matchMedia(
+        '(display-mode: standalone)'
+      ).matches ||
+      window.navigator.standalone === true;
+
+
+    window.addEventListener(
+      'beforeinstallprompt',
+      function(event) {
+
+        event.preventDefault();
+
+        deferredInstallPrompt =
+          event;
+
+      }
+    );
+
+
+    if (isStandalone) {
+
+      saveButton.style.display =
+        'none';
+
+    }
+
+
+    saveButton.onclick =
+      async function() {
+
+
+        saveInfo.style.display =
+          'block';
+
+
+        // --------------------------------------------------------
+        // APPLE / iPHONE / iPAD
+        // --------------------------------------------------------
+
+        if (isIOS) {
+
+          saveInfo.innerHTML =
+            '<strong>Auf dem iPhone/iPad speichern:</strong><br>' +
+            'Tippe im Browser auf <strong>Teilen</strong> ' +
+            'und anschließend auf ' +
+            '<strong>„Zum Home-Bildschirm“</strong>.<br><br>' +
+            'Danach erscheint die Meldestelle mit unserem Symbol ' +
+            'auf deinem Home-Bildschirm.';
+
+          return;
+
+        }
+
+
+        // --------------------------------------------------------
+        // ANDROID MIT INSTALLATIONSDIALOG
+        // --------------------------------------------------------
+
+        if (deferredInstallPrompt) {
+
+          deferredInstallPrompt.prompt();
+
+          const result =
+            await deferredInstallPrompt.userChoice;
+
+
+          deferredInstallPrompt =
+            null;
+
+
+          if (
+            result.outcome ===
+            'accepted'
+          ) {
+
+            saveInfo.innerHTML =
+              '<strong>Gespeichert.</strong><br>' +
+              'Die Meldestelle findest du jetzt ' +
+              'auf deinem Startbildschirm.';
+
+            saveButton.style.display =
+              'none';
+
+          }
+
+          else {
+
+            saveInfo.innerHTML =
+              'Die Meldestelle wurde noch nicht gespeichert.';
+
+          }
+
+
+          return;
+
+        }
+
+
+        // --------------------------------------------------------
+        // ANDROID / ANDERE BROWSER
+        // --------------------------------------------------------
+
+        saveInfo.innerHTML =
+          '<strong>Auf dem Startbildschirm speichern:</strong><br>' +
+          'Öffne das Browser-Menü <strong>⋮</strong> und wähle ' +
+          '<strong>„Zum Startbildschirm hinzufügen“</strong> ' +
+          'oder <strong>„App installieren“</strong>.<br><br>' +
+          'Danach kannst du die Meldestelle direkt über unser Symbol öffnen.';
+
+      };
+
+
+
+    window.addEventListener(
+      'appinstalled',
+      function() {
+
+        saveButton.style.display =
+          'none';
+
+        saveInfo.style.display =
+          'block';
+
+        saveInfo.innerHTML =
+          '<strong>Gespeichert.</strong><br>' +
+          'Die Meldestelle ist jetzt über deinen Startbildschirm erreichbar.';
+
+      }
+    );
+
+
+
+    // ============================================================
     // BEREICHE
     // ============================================================
 
@@ -813,13 +1000,6 @@
 
       }
 
-
-      /*
-       * Öffnet bewusst die nackte Kobo-Adresse.
-       * Dadurch wird das bereits im Browser gespeicherte
-       * Online-Offline-Formular geöffnet und Kobo kann
-       * wartende Offline-Datensätze übertragen.
-       */
 
       window.location.href =
         KOBO_URL;
