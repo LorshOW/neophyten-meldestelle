@@ -6,15 +6,11 @@
 
   <title>Invasive Pflanze melden</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css"
-  />
+  <link rel="stylesheet"
+        href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css">
 
   <style>
     * {
@@ -77,6 +73,13 @@
       color: #234b2d;
     }
 
+    .delete-point {
+      width: 100%;
+      margin-bottom: 10px;
+      background: #fff3cd;
+      color: #5f4b00;
+    }
+
     .delete {
       width: 100%;
       margin-bottom: 10px;
@@ -105,6 +108,7 @@
 
   <div class="header">
     <h1>🌿 Invasive Pflanze melden</h1>
+
     <p>
       Markiere bitte den Fundort der Pflanze.<br>
       Du kannst einen Standort setzen oder eine Fläche einzeichnen.
@@ -120,8 +124,12 @@
       <button id="polygonButton">⬡ Fläche einzeichnen</button>
     </div>
 
+    <button class="delete-point" id="deletePointButton">
+      ✂ Einzelnen Eckpunkt löschen
+    </button>
+
     <button class="delete" id="deleteButton">
-      🗑 Markierung löschen
+      🗑 Ganze Markierung löschen
     </button>
 
     <div class="status" id="status">
@@ -135,13 +143,9 @@
   </div>
 
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script
-    src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.min.js">
-  </script>
+  <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.min.js"></script>
 
 
   <script>
@@ -158,10 +162,14 @@
 
 
     let userLocation = null;
+    let accuracyCircle = null;
     let drawingLayer = null;
 
 
-    // Eigenen GPS-Standort anzeigen
+    // --------------------------------------------------
+    // GPS-STANDORT
+    // --------------------------------------------------
+
     map.locate({
       setView: true,
       maxZoom: 17,
@@ -171,13 +179,21 @@
 
     map.on('locationfound', function(e) {
 
+      if (userLocation) {
+        map.removeLayer(userLocation);
+      }
+
+      if (accuracyCircle) {
+        map.removeLayer(accuracyCircle);
+      }
+
       userLocation = L.circleMarker(e.latlng, {
         radius: 9,
         weight: 3,
         fillOpacity: 0.8
       }).addTo(map);
 
-      L.circle(e.latlng, {
+      accuracyCircle = L.circle(e.latlng, {
         radius: e.accuracy,
         weight: 1,
         fillOpacity: 0.08
@@ -187,12 +203,21 @@
 
 
     map.on('locationerror', function() {
+
       document.getElementById('status').textContent =
         'GPS-Standort konnte nicht bestimmt werden. Du kannst den Fundort trotzdem auf der Karte markieren.';
+
     });
 
 
+    // --------------------------------------------------
+    // VORHANDENE MARKIERUNG ENTFERNEN
+    // --------------------------------------------------
+
     function removeDrawing() {
+
+      map.pm.disableDraw();
+      map.pm.disableGlobalRemovalMode();
 
       if (drawingLayer) {
         map.removeLayer(drawingLayer);
@@ -201,10 +226,14 @@
 
       document.getElementById('status').textContent =
         'Bitte markiere den Fundort.';
+
     }
 
 
-    // Punkt setzen
+    // --------------------------------------------------
+    // PUNKT SETZEN
+    // --------------------------------------------------
+
     document.getElementById('pointButton').onclick = function() {
 
       removeDrawing();
@@ -215,10 +244,14 @@
 
       document.getElementById('status').textContent =
         'Tippe auf den Fundort in der Karte.';
+
     };
 
 
-    // Polygon zeichnen
+    // --------------------------------------------------
+    // POLYGON ZEICHNEN
+    // --------------------------------------------------
+
     document.getElementById('polygonButton').onclick = function() {
 
       removeDrawing();
@@ -230,10 +263,14 @@
 
       document.getElementById('status').textContent =
         'Zeichne die Fläche auf der Karte ein.';
+
     };
 
 
-    // Neu erstellte Geometrie übernehmen
+    // --------------------------------------------------
+    // NEUE MARKIERUNG
+    // --------------------------------------------------
+
     map.on('pm:create', function(e) {
 
       if (drawingLayer && drawingLayer !== e.layer) {
@@ -244,32 +281,161 @@
 
       map.pm.disableDraw();
 
-      drawingLayer.pm.enable({
-        allowSelfIntersection: false
-      });
+      // Punkt verschiebbar machen
+      if (drawingLayer instanceof L.Marker) {
 
-      document.getElementById('status').textContent =
-        '✓ Fundort erfasst. Du kannst die Markierung noch verändern.';
+        drawingLayer.pm.enable();
+
+        document.getElementById('status').textContent =
+          '✓ Standort erfasst. Du kannst den Punkt noch verschieben.';
+
+      }
+
+      // Polygon bearbeitbar machen
+      else {
+
+        drawingLayer.pm.enable({
+          allowSelfIntersection: false
+        });
+
+        document.getElementById('status').textContent =
+          '✓ Fläche erfasst. Eckpunkte können verschoben oder einzeln gelöscht werden.';
+
+      }
+
     });
 
 
-    // Löschen
-    document.getElementById('deleteButton').onclick = function() {
-      removeDrawing();
-      map.pm.disableDraw();
+    // --------------------------------------------------
+    // EINZELNEN POLYGON-ECKPUNKT LÖSCHEN
+    // --------------------------------------------------
+
+    document.getElementById('deletePointButton').onclick = function() {
+
+      if (!drawingLayer) {
+
+        alert('Bitte zuerst eine Fläche einzeichnen.');
+        return;
+
+      }
+
+      if (drawingLayer instanceof L.Marker) {
+
+        alert('Bei einem einzelnen Standort gibt es keine Eckpunkte.');
+        return;
+
+      }
+
+      map.pm.disableGlobalRemovalMode();
+
+      // Polygon in Bearbeitungsmodus bringen
+      drawingLayer.pm.enable({
+        allowSelfIntersection: false,
+        removeLayerBelowMinVertexCount: false
+      });
+
+      document.getElementById('status').textContent =
+        'Tippe jetzt auf den Eckpunkt, den du löschen möchtest.';
+
+      /*
+       * Leaflet-Geoman:
+       * Im Edit-Modus entfernt ein Klick auf einen sichtbaren
+       * Eckpunkt mit aktivierter Entfernung den betreffenden Vertex.
+       */
+
+      const markers = drawingLayer.pm.getMarkers();
+
+      markers.forEach(function(markerArray) {
+
+        const list = Array.isArray(markerArray)
+          ? markerArray
+          : [markerArray];
+
+        list.forEach(function(marker) {
+
+          marker.once('click', function() {
+
+            const latlng = marker.getLatLng();
+
+            const polygonLatLngs = drawingLayer.getLatLngs()[0];
+
+            // Polygon benötigt mindestens 3 Punkte
+            if (polygonLatLngs.length <= 3) {
+
+              alert(
+                'Eine Fläche benötigt mindestens drei Eckpunkte. ' +
+                'Dieser Punkt kann deshalb nicht gelöscht werden.'
+              );
+
+              return;
+            }
+
+            let nearestIndex = -1;
+            let nearestDistance = Infinity;
+
+            polygonLatLngs.forEach(function(p, index) {
+
+              const distance = p.distanceTo(latlng);
+
+              if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestIndex = index;
+              }
+
+            });
+
+            if (nearestIndex >= 0) {
+
+              polygonLatLngs.splice(nearestIndex, 1);
+
+              drawingLayer.setLatLngs([polygonLatLngs]);
+
+              drawingLayer.pm.disable();
+
+              drawingLayer.pm.enable({
+                allowSelfIntersection: false
+              });
+
+              document.getElementById('status').textContent =
+                '✓ Eckpunkt gelöscht. Die Fläche kann weiter bearbeitet werden.';
+
+            }
+
+          });
+
+        });
+
+      });
+
     };
 
 
-    // Später: Übergabe an Kobo
+    // --------------------------------------------------
+    // GANZE MARKIERUNG LÖSCHEN
+    // --------------------------------------------------
+
+    document.getElementById('deleteButton').onclick = function() {
+
+      removeDrawing();
+
+    };
+
+
+    // --------------------------------------------------
+    // WEITER
+    // --------------------------------------------------
+
     document.getElementById('continueButton').onclick = function() {
 
       if (!drawingLayer) {
 
-        alert('Bitte zuerst einen Standort oder eine Fläche markieren.');
+        alert(
+          'Bitte zuerst einen Standort oder eine Fläche markieren.'
+        );
 
         return;
-      }
 
+      }
 
       const geojson = drawingLayer.toGeoJSON();
 
@@ -277,8 +443,9 @@
 
       alert(
         'Kartendaten wurden erfolgreich erfasst.\n\n' +
-        'Im nächsten Schritt verbinden wir diesen Button mit Kobo.'
+        'Im nächsten Schritt werden diese Daten an Kobo übergeben.'
       );
+
     };
 
   </script>
