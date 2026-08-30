@@ -698,10 +698,8 @@
 
 
     // ============================================================
-    // INSTALLATION / STARTBILDSCHIRM
+    // STARTBILDSCHIRM / MELDESTELLE SPEICHERN
     // ============================================================
-
-    let deferredInstallPrompt = null;
 
     const saveButton =
       document.getElementById('saveButton');
@@ -710,10 +708,16 @@
       document.getElementById('saveInfo');
 
 
+    const userAgent =
+      window.navigator.userAgent.toLowerCase();
+
+
     const isIOS =
-      /iphone|ipad|ipod/i.test(
-        window.navigator.userAgent
-      );
+      /iphone|ipad|ipod/.test(userAgent);
+
+
+    const isAndroid =
+      /android/.test(userAgent);
 
 
     const isStandalone =
@@ -721,19 +725,6 @@
         '(display-mode: standalone)'
       ).matches ||
       window.navigator.standalone === true;
-
-
-    window.addEventListener(
-      'beforeinstallprompt',
-      function(event) {
-
-        event.preventDefault();
-
-        deferredInstallPrompt =
-          event;
-
-      }
-    );
 
 
     if (isStandalone) {
@@ -745,7 +736,7 @@
 
 
     saveButton.onclick =
-      async function() {
+      function() {
 
 
         saveInfo.style.display =
@@ -759,12 +750,13 @@
         if (isIOS) {
 
           saveInfo.innerHTML =
-            '<strong>Auf dem iPhone/iPad speichern:</strong><br>' +
-            'Tippe im Browser auf <strong>Teilen</strong> ' +
-            'und anschließend auf ' +
-            '<strong>„Zum Home-Bildschirm“</strong>.<br><br>' +
-            'Danach erscheint die Meldestelle mit unserem Symbol ' +
-            'auf deinem Home-Bildschirm.';
+            '<strong>Auf dem Home-Bildschirm speichern:</strong><br><br>' +
+            '1. Tippe unten im Browser auf <strong>Teilen</strong> ' +
+            '(Quadrat mit Pfeil nach oben).<br><br>' +
+            '2. Wähle <strong>„Zum Home-Bildschirm“</strong>.<br><br>' +
+            '3. Tippe auf <strong>„Hinzufügen“</strong>.<br><br>' +
+            'Danach findest du die Meldestelle mit unserem Symbol ' +
+            'direkt auf deinem Home-Bildschirm.';
 
           return;
 
@@ -772,43 +764,19 @@
 
 
         // --------------------------------------------------------
-        // ANDROID MIT INSTALLATIONSDIALOG
+        // ANDROID
         // --------------------------------------------------------
 
-        if (deferredInstallPrompt) {
+        if (isAndroid) {
 
-          deferredInstallPrompt.prompt();
-
-          const result =
-            await deferredInstallPrompt.userChoice;
-
-
-          deferredInstallPrompt =
-            null;
-
-
-          if (
-            result.outcome ===
-            'accepted'
-          ) {
-
-            saveInfo.innerHTML =
-              '<strong>Gespeichert.</strong><br>' +
-              'Die Meldestelle findest du jetzt ' +
-              'auf deinem Startbildschirm.';
-
-            saveButton.style.display =
-              'none';
-
-          }
-
-          else {
-
-            saveInfo.innerHTML =
-              'Die Meldestelle wurde noch nicht gespeichert.';
-
-          }
-
+          saveInfo.innerHTML =
+            '<strong>Auf dem Startbildschirm speichern:</strong><br><br>' +
+            '1. Öffne oben rechts das Browser-Menü <strong>⋮</strong>.<br><br>' +
+            '2. Wähle <strong>„Zum Startbildschirm hinzufügen“</strong> ' +
+            'bzw. <strong>„Seite hinzufügen zu“ → „Startbildschirm“</strong>.<br><br>' +
+            '3. Bestätige das Hinzufügen.<br><br>' +
+            'Danach findest du die Meldestelle mit unserem Symbol ' +
+            'direkt auf deinem Startbildschirm.';
 
           return;
 
@@ -816,36 +784,15 @@
 
 
         // --------------------------------------------------------
-        // ANDROID / ANDERE BROWSER
+        // ANDERE GERÄTE
         // --------------------------------------------------------
 
         saveInfo.innerHTML =
-          '<strong>Auf dem Startbildschirm speichern:</strong><br>' +
-          'Öffne das Browser-Menü <strong>⋮</strong> und wähle ' +
-          '<strong>„Zum Startbildschirm hinzufügen“</strong> ' +
-          'oder <strong>„App installieren“</strong>.<br><br>' +
-          'Danach kannst du die Meldestelle direkt über unser Symbol öffnen.';
+          '<strong>Meldestelle speichern:</strong><br><br>' +
+          'Öffne das Menü deines Browsers und wähle die Funktion ' +
+          'zum Hinzufügen dieser Seite zum Startbildschirm.';
 
       };
-
-
-
-    window.addEventListener(
-      'appinstalled',
-      function() {
-
-        saveButton.style.display =
-          'none';
-
-        saveInfo.style.display =
-          'block';
-
-        saveInfo.innerHTML =
-          '<strong>Gespeichert.</strong><br>' +
-          'Die Meldestelle ist jetzt über deinen Startbildschirm erreichbar.';
-
-      }
-    );
 
 
 
