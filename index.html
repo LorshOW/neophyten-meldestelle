@@ -222,7 +222,7 @@
 
     .controls {
       background: white;
-      padding: 14px;
+      padding: 14px 14px 92px;
     }
 
     .mode-buttons {
@@ -266,7 +266,12 @@
     }
 
     .continue {
-      width: 100%;
+      position: fixed;
+      left: 14px;
+      right: 14px;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      width: auto;
+      z-index: 1100;
       border: 0;
       border-radius: 8px;
       padding: 13px 12px;
@@ -274,6 +279,14 @@
       color: white;
       font-weight: bold;
       font-size: 17px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+    }
+
+    .continue:disabled {
+      background: #aeb7b0;
+      color: #f4f4f4;
+      cursor: not-allowed;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
     }
 
     .status {
@@ -617,6 +630,7 @@
       <button
         class="continue"
         id="continueButton"
+        disabled
       >
         Standort übernehmen &amp; weiter
       </button>
@@ -1055,6 +1069,11 @@
       ).textContent =
         'Bitte markiere den Fundort.';
 
+
+      document.getElementById(
+        'continueButton'
+      ).disabled = true;
+
     }
 
 
@@ -1138,6 +1157,11 @@
 
         drawingLayer =
           e.layer;
+
+
+        document.getElementById(
+          'continueButton'
+        ).disabled = false;
 
 
         map.pm.disableDraw();
