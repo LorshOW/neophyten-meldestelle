@@ -178,6 +178,58 @@
 
 
     /* =========================================================
+       AUSWAHL STANDORT ODER FLÄCHE
+       ========================================================= */
+
+    #typeArea {
+      display: none;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 18px;
+    }
+
+    .type-card {
+      width: 100%;
+      max-width: 560px;
+      background: #ffffff;
+      border: 1px solid #dfe5dd;
+      padding: 34px 26px 28px;
+      text-align: center;
+    }
+
+    .type-card h1 {
+      margin: 0 0 12px;
+      color: #245b32;
+      font-size: 25px;
+    }
+
+    .type-card p {
+      margin: 0 0 24px;
+      color: #465148;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .type-button {
+      width: 100%;
+      border: 1px solid #78907c;
+      border-radius: 8px;
+      padding: 18px 16px;
+      margin-bottom: 12px;
+      background: #f3f7f3;
+      color: #245b32;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .type-button:hover,
+    .type-button:focus-visible {
+      background: #e4eee6;
+    }
+
+
+    /* =========================================================
        KARTENSEITE
        ========================================================= */
 
@@ -558,6 +610,47 @@
 
 
   <!-- =========================================================
+       AUSWAHL STANDORT ODER FLÄCHE
+       ========================================================= -->
+
+  <section id="typeArea">
+
+    <div class="type-card">
+
+      <h1>Was möchtest du markieren?</h1>
+
+      <p>
+        Wähle aus, wie der Pflanzenbestand auf der Karte erfasst werden soll.
+      </p>
+
+      <button
+        class="type-button"
+        id="selectPointButton"
+      >
+        📍 Einzelnen Standort markieren
+      </button>
+
+      <button
+        class="type-button"
+        id="selectPolygonButton"
+      >
+        ⬡ Fläche einzeichnen
+      </button>
+
+      <button
+        class="back-button"
+        id="typeBackButton"
+      >
+        ← Zurück zur Startseite
+      </button>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- =========================================================
        KARTE
        ========================================================= -->
 
@@ -565,18 +658,17 @@
 
     <div class="header">
 
-      <h1>🌿 Invasive Pflanze melden</h1>
+      <h1 id="mapHeading">🌿 Invasive Pflanze melden</h1>
 
-      <p>
-        Markiere bitte den Fundort der Pflanze.<br>
-        Du kannst einen Standort setzen oder eine Fläche einzeichnen.
+      <p id="mapInstruction">
+        Markiere bitte den Fundort der Pflanze.
       </p>
 
       <button
         class="back-button"
         id="mapBackButton"
       >
-        ← Zurück zur Startseite
+        ← Auswahl ändern
       </button>
 
     </div>
@@ -587,20 +679,7 @@
 
     <div class="controls">
 
-      <div class="mode-buttons">
-
-        <button id="pointButton">
-          📍 Standort markieren
-        </button>
-
-        <button id="polygonButton">
-          ⬡ Fläche einzeichnen
-        </button>
-
-      </div>
-
-
-      <div class="help">
+      <div class="help" id="mapHelp">
 
         <strong>Fläche korrigieren:</strong><br>
 
@@ -632,7 +711,7 @@
         id="continueButton"
         disabled
       >
-        Standort übernehmen &amp; weiter
+        Markierung übernehmen &amp; weiter
       </button>
 
     </div>
@@ -772,6 +851,9 @@
     const startArea =
       document.getElementById('startArea');
 
+    const typeArea =
+      document.getElementById('typeArea');
+
     const mapArea =
       document.getElementById('mapArea');
 
@@ -786,6 +868,7 @@
     function hideAllAreas() {
 
       startArea.style.display = 'none';
+      typeArea.style.display = 'none';
       mapArea.style.display = 'none';
       offlineArea.style.display = 'none';
       syncOfflineArea.style.display = 'none';
@@ -801,6 +884,15 @@
       startArea.style.display = 'flex';
 
       updateConnectionStatus();
+
+    }
+
+
+    function showTypeSelection() {
+
+      hideAllAreas();
+
+      typeArea.style.display = 'flex';
 
     }
 
@@ -867,21 +959,8 @@
 
       if (navigator.onLine) {
 
-        mapArea.style.display =
-          'block';
-
-
-        setTimeout(function() {
-
-          map.invalidateSize();
-
-          map.locate({
-            setView: true,
-            maxZoom: 17,
-            enableHighAccuracy: true
-          });
-
-        }, 150);
+        typeArea.style.display =
+          'flex';
 
       }
 
@@ -945,6 +1024,16 @@
 
     document.getElementById(
       'mapBackButton'
+    ).onclick = function() {
+
+      removeDrawing();
+      showTypeSelection();
+
+    };
+
+
+    document.getElementById(
+      'typeBackButton'
     ).onclick = showStart;
 
 
@@ -984,6 +1073,7 @@
     let userLocation = null;
     let accuracyCircle = null;
     let drawingLayer = null;
+    let currentMapMode = '';
 
 
 
@@ -1079,57 +1169,128 @@
 
 
     // ============================================================
-    // PUNKT
+    // AUSWAHL ÖFFNET DIE KARTE IM PASSENDEN MODUS
     // ============================================================
 
-    document.getElementById(
-      'pointButton'
-    ).onclick = function() {
+    function startDrawingMode(mode) {
+
+      currentMapMode = mode;
+
+
+      if (mode === 'point') {
+
+        document.getElementById(
+          'mapHeading'
+        ).textContent =
+          '📍 Standort markieren';
+
+        document.getElementById(
+          'mapInstruction'
+        ).textContent =
+          'Tippe auf den Fundort der Pflanze.';
+
+        document.getElementById(
+          'mapHelp'
+        ).style.display = 'none';
+
+        document.getElementById(
+          'continueButton'
+        ).textContent =
+          'Standort übernehmen & weiter';
+
+        map.pm.enableDraw(
+          'Marker',
+          {
+            snappable: true
+          }
+        );
+
+        document.getElementById(
+          'status'
+        ).textContent =
+          'Tippe auf den Fundort in der Karte.';
+
+      }
+
+      else {
+
+        document.getElementById(
+          'mapHeading'
+        ).textContent =
+          '⬡ Fläche einzeichnen';
+
+        document.getElementById(
+          'mapInstruction'
+        ).textContent =
+          'Zeichne den Pflanzenbestand auf der Karte ein.';
+
+        document.getElementById(
+          'mapHelp'
+        ).style.display = 'block';
+
+        document.getElementById(
+          'continueButton'
+        ).textContent =
+          'Fläche übernehmen & weiter';
+
+        map.pm.enableDraw(
+          'Polygon',
+          {
+            snappable: true,
+            allowSelfIntersection: false
+          }
+        );
+
+        document.getElementById(
+          'status'
+        ).textContent =
+          'Zeichne die Fläche auf der Karte ein.';
+
+      }
+
+    }
+
+
+    function openMap(mode) {
 
       removeDrawing();
 
+      hideAllAreas();
 
-      map.pm.enableDraw(
-        'Marker',
-        {
-          snappable: true
-        }
-      );
+      mapArea.style.display = 'block';
 
 
-      document.getElementById(
-        'status'
-      ).textContent =
-        'Tippe auf den Fundort in der Karte.';
+      setTimeout(function() {
+
+        map.invalidateSize();
+
+        map.locate({
+          setView: true,
+          maxZoom: 17,
+          enableHighAccuracy: true
+        });
+
+        startDrawingMode(mode);
+
+      }, 150);
+
+    }
+
+
+    document.getElementById(
+      'selectPointButton'
+    ).onclick = function() {
+
+      openMap('point');
 
     };
 
 
-
-    // ============================================================
-    // FLÄCHE
-    // ============================================================
-
     document.getElementById(
-      'polygonButton'
+      'selectPolygonButton'
     ).onclick = function() {
 
-      removeDrawing();
-
-
-      map.pm.enableDraw(
-        'Polygon',
-        {
-          snappable: true,
-          allowSelfIntersection: false
-        }
-      );
-
-
-      document.getElementById(
-        'status'
-      ).textContent =
-        'Zeichne die Fläche auf der Karte ein.';
+      openMap('polygon');
 
     };
 
@@ -1212,6 +1373,8 @@
     ).onclick = function() {
 
       removeDrawing();
+
+      startDrawingMode(currentMapMode);
 
     };
 
