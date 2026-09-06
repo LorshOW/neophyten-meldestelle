@@ -122,6 +122,21 @@
       line-height: 1.45;
     }
 
+    .info-link-wrap {
+      margin: 14px auto 0;
+      max-width: 430px;
+      text-align: center;
+    }
+
+    .info-link {
+      color: #4d6752;
+      font-size: 14px;
+      text-decoration: underline;
+      background: none;
+      border: 0;
+      padding: 4px;
+    }
+
     .offline-guide {
       max-width: 430px;
       margin: 22px auto 0;
@@ -464,6 +479,124 @@
     }
 
 
+    /* =========================================================
+       NEOPHYTEN-ÜBERSICHT
+       ========================================================= */
+
+    #neophytenArea {
+      display: none;
+      min-height: 100vh;
+      padding: 26px 16px 60px;
+    }
+
+    .neophyten-header {
+      max-width: 700px;
+      margin: 0 auto 22px;
+      text-align: center;
+    }
+
+    .neophyten-header h1 {
+      margin: 0 0 8px;
+      color: #245b32;
+      font-size: 24px;
+    }
+
+    .neophyten-header p {
+      margin: 0;
+      color: #465148;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .plant-grid {
+      max-width: 700px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .plant-card {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: white;
+      border: 1px solid #dfe5dd;
+      padding: 14px;
+      text-align: left;
+    }
+
+    .plant-photo {
+      width: 84px;
+      height: 84px;
+      flex-shrink: 0;
+      background: #f3f7f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      overflow: hidden;
+    }
+
+    .plant-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .plant-info {
+      flex: 1;
+    }
+
+    .plant-name {
+      font-weight: 700;
+      color: #245b32;
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .plant-latin {
+      font-style: italic;
+      color: #68716a;
+      font-size: 13px;
+      margin: 2px 0 6px;
+    }
+
+    .plant-habitat {
+      font-size: 14px;
+      color: #465148;
+      margin: 0 0 6px;
+    }
+
+    .plant-warning {
+      font-size: 13px;
+      color: #8a4a1a;
+      background: #fbf1e6;
+      padding: 6px 8px;
+      margin: 0 0 6px;
+    }
+
+    .plant-link {
+      display: inline-block;
+      font-size: 13px;
+      color: #2f6d3e;
+      text-decoration: none;
+    }
+
+    .plant-link:hover {
+      text-decoration: underline;
+    }
+
+    .neophyten-source-note {
+      max-width: 700px;
+      margin: 20px auto 0;
+      font-size: 12px;
+      color: #8a938c;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+
     @media (max-width: 480px) {
 
       #startArea {
@@ -541,6 +674,16 @@
         Hier kannst du gespeicherte Meldungen übertragen,
         sobald wieder eine Internetverbindung besteht.
       </p>
+
+
+      <div class="info-link-wrap">
+        <button
+          class="info-link"
+          id="infoButton"
+        >
+          🔍 Welche Pflanzen sind gemeint?
+        </button>
+      </div>
 
 
       <div class="offline-guide">
@@ -810,6 +953,48 @@
 
 
 
+  <!-- =========================================================
+       NEOPHYTEN-ÜBERSICHT
+       ========================================================= -->
+
+  <section id="neophytenArea">
+
+    <div class="neophyten-header">
+
+      <h1>Welche Pflanzen sind gemeint?</h1>
+
+      <p>
+        Eine kurze Übersicht über invasive Neophyten in unserer Region –
+        damit du beim Entdecken schon einen Verdacht hast, worum es sich handeln könnte.
+      </p>
+
+    </div>
+
+
+    <div
+      class="plant-grid"
+      id="plantGrid"
+    ></div>
+
+
+    <p class="neophyten-source-note">
+      Bildquelle: Wikipedia (jeweils verlinkt, freie Lizenzen).
+      Bei Unsicherheit gilt: Melden lohnt sich immer – die genaue Bestimmung übernehmen wir.
+    </p>
+
+
+    <button
+      class="back-button"
+      id="neophytenBackButton"
+      style="display:block;margin:22px auto 0;"
+    >
+      ← Zurück zur Startseite
+    </button>
+
+  </section>
+
+
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.min.js"></script>
@@ -865,6 +1050,9 @@
     const syncOfflineArea =
       document.getElementById('syncOfflineArea');
 
+    const neophytenArea =
+      document.getElementById('neophytenArea');
+
 
 
     function hideAllAreas() {
@@ -874,6 +1062,7 @@
       mapArea.style.display = 'none';
       offlineArea.style.display = 'none';
       syncOfflineArea.style.display = 'none';
+      neophytenArea.style.display = 'none';
 
     }
 
@@ -1047,6 +1236,186 @@
     document.getElementById(
       'syncBackButton'
     ).onclick = showStart;
+
+
+    document.getElementById(
+      'neophytenBackButton'
+    ).onclick = showStart;
+
+
+
+    // ============================================================
+    // NEOPHYTEN-ÜBERSICHT
+    //
+    // Liste erweitern: Einfach ein neues Objekt unten anhängen.
+    // "wikiTitel" muss exakt dem Artikelnamen auf der deutschen
+    // Wikipedia entsprechen (z. B. https://de.wikipedia.org/wiki/<wikiTitel>).
+    // Das Bild wird darüber automatisch geladen - kein Bild-Link
+    // von Hand nötig.
+    // ============================================================
+
+    const NEOPHYTEN = [
+
+      {
+        name: 'Riesen-Bärenklau',
+        latein: 'Heracleum mantegazzianum',
+        wikiTitel: 'Riesen-Bärenklau',
+        standort: 'Bachufer, Wegränder, feuchte Wiesen',
+        warnung: 'Pflanzensaft kann bei Sonnenlicht schwere Hautverbrennungen verursachen – nicht berühren!'
+      },
+
+      {
+        name: 'Japanischer Staudenknöterich',
+        latein: 'Reynoutria japonica',
+        wikiTitel: 'Japanischer Staudenknöterich',
+        standort: 'Flussufer, Bahndämme, Brachflächen'
+      },
+
+      {
+        name: 'Drüsiges Springkraut',
+        latein: 'Impatiens glandulifera',
+        wikiTitel: 'Drüsiges Springkraut',
+        standort: 'Feuchte Wälder, Bachufer, Gräben'
+      },
+
+      {
+        name: 'Kleinblütiges Springkraut',
+        latein: 'Impatiens parviflora',
+        wikiTitel: 'Kleinblütiges Springkraut',
+        standort: 'Schattige Wälder, Wegränder, Parks'
+      },
+
+      {
+        name: 'Kanadische Goldrute',
+        latein: 'Solidago canadensis',
+        wikiTitel: 'Kanadische Goldrute',
+        standort: 'Brachflächen, Wegränder, trockene Wiesen'
+      },
+
+      {
+        name: 'Einjähriges Berufkraut',
+        latein: 'Erigeron annuus',
+        wikiTitel: 'Einjähriges Berufkraut',
+        standort: 'Wegränder, Brachflächen, Bahngelände'
+      },
+
+      {
+        name: 'Götterbaum',
+        latein: 'Ailanthus altissima',
+        wikiTitel: 'Götterbaum',
+        standort: 'Bahngelände, Stadtränder, Mauerritzen'
+      },
+
+      {
+        name: 'Essigbaum',
+        latein: 'Rhus typhina',
+        wikiTitel: 'Essigbaum',
+        standort: 'Gärten, Böschungen, Waldränder'
+      },
+
+      {
+        name: 'Sommerflieder',
+        latein: 'Buddleja davidii',
+        wikiTitel: 'Sommerflieder',
+        standort: 'Bahndämme, Schutt, Ruderalflächen'
+      }
+
+    ];
+
+
+    let neophytenGeladen = false;
+
+
+    function ladeNeophytenListe() {
+
+      if (neophytenGeladen) {
+        return;
+      }
+
+      neophytenGeladen = true;
+
+
+      const grid =
+        document.getElementById('plantGrid');
+
+
+      NEOPHYTEN.forEach(function(pflanze, index) {
+
+        const card =
+          document.createElement('div');
+
+        card.className =
+          'plant-card';
+
+        card.innerHTML =
+
+          '<div class="plant-photo" id="pflanzenfoto-' + index + '">🌱</div>' +
+
+          '<div class="plant-info">' +
+
+            '<p class="plant-name">' + pflanze.name + '</p>' +
+
+            '<p class="plant-latin">' + pflanze.latein + '</p>' +
+
+            '<p class="plant-habitat">📍 ' + pflanze.standort + '</p>' +
+
+            (pflanze.warnung
+              ? '<p class="plant-warning">⚠️ ' + pflanze.warnung + '</p>'
+              : ''
+            ) +
+
+            '<a class="plant-link" href="https://de.wikipedia.org/wiki/' +
+              encodeURIComponent(pflanze.wikiTitel) +
+              '" target="_blank" rel="noopener">Mehr auf Wikipedia →</a>' +
+
+          '</div>';
+
+
+        grid.appendChild(card);
+
+
+        fetch(
+          'https://de.wikipedia.org/api/rest_v1/page/summary/' +
+          encodeURIComponent(pflanze.wikiTitel)
+        )
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(data) {
+
+            if (data.thumbnail && data.thumbnail.source) {
+
+              const foto =
+                document.getElementById('pflanzenfoto-' + index);
+
+              foto.innerHTML =
+                '<img src="' + data.thumbnail.source +
+                '" alt="' + pflanze.name + '" loading="lazy">';
+
+            }
+
+          })
+          .catch(function() {
+            // Bild bleibt Platzhalter (🌱), z. B. wenn offline
+          });
+
+      });
+
+    }
+
+
+    document.getElementById(
+      'infoButton'
+    ).onclick = function() {
+
+      ladeNeophytenListe();
+
+      hideAllAreas();
+
+      neophytenArea.style.display =
+        'block';
+
+    };
 
 
 
