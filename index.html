@@ -542,6 +542,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      cursor: pointer;
     }
 
     .plant-info {
@@ -594,6 +595,59 @@
       color: #8a938c;
       text-align: center;
       line-height: 1.5;
+    }
+
+
+    /* =========================================================
+       BILD-LIGHTBOX (Klick zum Vergrößern)
+       ========================================================= */
+
+    .lightbox-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(20, 26, 21, 0.92);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 24px;
+    }
+
+    .lightbox-overlay.active {
+      display: flex;
+    }
+
+    .lightbox-overlay img {
+      max-width: 100%;
+      max-height: 72vh;
+      border-radius: 4px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .lightbox-caption {
+      color: #f4f5f1;
+      margin-top: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 0;
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      font-size: 22px;
+      line-height: 1;
     }
 
 
@@ -966,6 +1020,7 @@
       <p>
         Eine kurze Übersicht über invasive Neophyten in unserer Region –
         damit du beim Entdecken schon einen Verdacht hast, worum es sich handeln könnte.
+        Tippe auf ein Bild, um es größer zu sehen.
       </p>
 
     </div>
@@ -992,6 +1047,38 @@
     </button>
 
   </section>
+
+
+
+  <!-- =========================================================
+       BILD-LIGHTBOX
+       ========================================================= -->
+
+  <div
+    class="lightbox-overlay"
+    id="lightboxOverlay"
+  >
+
+    <button
+      class="lightbox-close"
+      id="lightboxClose"
+      aria-label="Schließen"
+    >
+      ✕
+    </button>
+
+    <img
+      id="lightboxImage"
+      src=""
+      alt=""
+    >
+
+    <div
+      class="lightbox-caption"
+      id="lightboxCaption"
+    ></div>
+
+  </div>
 
 
 
@@ -1245,6 +1332,61 @@
 
 
     // ============================================================
+    // BILD-LIGHTBOX
+    // ============================================================
+
+    function openLightbox(bildUrl, beschriftung) {
+
+      document.getElementById(
+        'lightboxImage'
+      ).src = bildUrl;
+
+      document.getElementById(
+        'lightboxImage'
+      ).alt = beschriftung;
+
+      document.getElementById(
+        'lightboxCaption'
+      ).textContent = beschriftung;
+
+      document.getElementById(
+        'lightboxOverlay'
+      ).classList.add('active');
+
+    }
+
+
+    function closeLightbox() {
+
+      document.getElementById(
+        'lightboxOverlay'
+      ).classList.remove('active');
+
+      document.getElementById(
+        'lightboxImage'
+      ).src = '';
+
+    }
+
+
+    document.getElementById(
+      'lightboxClose'
+    ).onclick = closeLightbox;
+
+
+    document.getElementById(
+      'lightboxOverlay'
+    ).onclick = function(e) {
+
+      if (e.target === this) {
+        closeLightbox();
+      }
+
+    };
+
+
+
+    // ============================================================
     // NEOPHYTEN-ÜBERSICHT
     //
     // Liste erweitern: Einfach ein neues Objekt unten anhängen.
@@ -1391,6 +1533,22 @@
               foto.innerHTML =
                 '<img src="' + data.thumbnail.source +
                 '" alt="' + pflanze.name + '" loading="lazy">';
+
+
+              // Für die Lightbox möglichst die größere
+              // Originalversion verwenden, falls vorhanden.
+              const grossesBild =
+                (data.originalimage && data.originalimage.source)
+                  ? data.originalimage.source
+                  : data.thumbnail.source;
+
+
+              const bildElement =
+                foto.querySelector('img');
+
+              bildElement.onclick = function() {
+                openLightbox(grossesBild, pflanze.name);
+              };
 
             }
 
