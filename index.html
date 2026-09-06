@@ -1392,8 +1392,14 @@
     // Liste erweitern: Einfach ein neues Objekt unten anhängen.
     // "wikiTitel" muss exakt dem Artikelnamen auf der deutschen
     // Wikipedia entsprechen (z. B. https://de.wikipedia.org/wiki/<wikiTitel>).
-    // Das Bild wird darüber automatisch geladen - kein Bild-Link
-    // von Hand nötig.
+    // Das Bild wird darüber automatisch geladen.
+    //
+    // "bildUrlManuell" (optional): Falls das automatische
+    // Wikipedia-Bild aus irgendeinem Grund nicht passt (z. B.
+    // eine erkennbare Person drauf, schlechte Qualität, falsches
+    // Motiv), einfach hier eine eigene, direkte Bild-URL eintragen.
+    // Ist dieses Feld gesetzt, wird IMMER dieses Bild genommen
+    // und gar nicht erst bei Wikipedia nachgefragt.
     // ============================================================
 
     const NEOPHYTEN = [
@@ -1410,7 +1416,8 @@
         name: 'Japanischer Staudenknöterich',
         latein: 'Reynoutria japonica',
         wikiTitel: 'Japanischer Staudenknöterich',
-        standort: 'Flussufer, Bahndämme, Brachflächen'
+        standort: 'Flussufer, Bahndämme, Brachflächen',
+        bildUrlManuell: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Fallopia_japonica_20250620_203130.jpg/1280px-Fallopia_japonica_20250620_203130.jpg'
       },
 
       {
@@ -1514,6 +1521,31 @@
 
 
         grid.appendChild(card);
+
+
+        // ------------------------------------------------------
+        // Manuelles Bild hat Vorrang - kein Wikipedia-Abruf nötig
+        // ------------------------------------------------------
+
+        if (pflanze.bildUrlManuell) {
+
+          const foto =
+            document.getElementById('pflanzenfoto-' + index);
+
+          foto.innerHTML =
+            '<img src="' + pflanze.bildUrlManuell +
+            '" alt="' + pflanze.name + '" loading="lazy">';
+
+          const bildElement =
+            foto.querySelector('img');
+
+          bildElement.onclick = function() {
+            openLightbox(pflanze.bildUrlManuell, pflanze.name);
+          };
+
+          return;
+
+        }
 
 
         fetch(
