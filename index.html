@@ -193,6 +193,22 @@
       background: #b27b30;
     }
 
+    .legal-link-wrap {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid #e5e8e3;
+      text-align: center;
+    }
+
+    .legal-link {
+      color: #8a938c;
+      font-size: 12px;
+      text-decoration: underline;
+      background: none;
+      border: 0;
+      padding: 4px;
+    }
+
 
     /* =========================================================
        AUSWAHL STANDORT ODER FLÄCHE
@@ -651,6 +667,66 @@
     }
 
 
+    /* =========================================================
+       IMPRESSUM & DATENSCHUTZ
+       ========================================================= */
+
+    #legalArea {
+      display: none;
+      min-height: 100vh;
+      padding: 26px 16px 60px;
+    }
+
+    .legal-box {
+      max-width: 640px;
+      margin: 0 auto;
+      background: white;
+      border: 1px solid #dfe5dd;
+      padding: 28px 24px;
+      text-align: left;
+    }
+
+    .legal-box h1 {
+      margin: 0 0 20px;
+      color: #245b32;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .legal-box h2 {
+      margin: 26px 0 10px;
+      color: #245b32;
+      font-size: 18px;
+    }
+
+    .legal-box h2:first-of-type {
+      margin-top: 0;
+    }
+
+    .legal-box h3 {
+      margin: 18px 0 6px;
+      color: #315f3b;
+      font-size: 15px;
+    }
+
+    .legal-box p,
+    .legal-box li {
+      margin: 0 0 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #3a443c;
+    }
+
+    .legal-box ul {
+      margin: 0 0 12px;
+      padding-left: 20px;
+    }
+
+    .legal-box a {
+      color: #2f6d3e;
+    }
+
+
     @media (max-width: 480px) {
 
       #startArea {
@@ -800,6 +876,16 @@
           Internetverbindung vorhanden
         </span>
 
+      </div>
+
+
+      <div class="legal-link-wrap">
+        <button
+          class="legal-link"
+          id="legalButton"
+        >
+          Impressum &amp; Datenschutz
+        </button>
       </div>
 
     </div>
@@ -1051,6 +1137,152 @@
 
 
   <!-- =========================================================
+       IMPRESSUM & DATENSCHUTZ
+       ========================================================= -->
+
+  <section id="legalArea">
+
+    <div class="legal-box">
+
+      <h1>Impressum &amp; Datenschutz</h1>
+
+
+      <h2>Impressum</h2>
+
+      <p>
+        Verantwortlich für den Inhalt dieser Seite:
+      </p>
+
+      <p>
+        Oliver Wenzek<br>
+        E-Mail: <a href="mailto:naturmeldung.erzgebirge@gmail.com">naturmeldung.erzgebirge@gmail.com</a>
+      </p>
+
+      <p>
+        Dieses Angebot ist ein privates, ehrenamtliches Projekt zur Erfassung
+        invasiver Pflanzenarten. Es handelt sich derzeit nicht um ein
+        offizielles Angebot des BUND oder einer seiner Gliederungen.
+      </p>
+
+
+      <h2>Datenschutzerklärung</h2>
+
+      <h3>1. Verantwortlicher</h3>
+
+      <p>
+        Verantwortlich für die Datenverarbeitung auf dieser Seite ist
+        Oliver Wenzek (Kontakt siehe Impressum oben).
+      </p>
+
+
+      <h3>2. Welche Daten werden verarbeitet?</h3>
+
+      <ul>
+        <li>
+          <strong>Standortdaten der Meldung:</strong> GPS-Koordinaten bzw. die
+          von dir eingezeichnete Fläche (Geometriedaten) des gemeldeten
+          Pflanzenfundes.
+        </li>
+        <li>
+          <strong>Fotos</strong>, die du im Meldeformular hochlädst.
+        </li>
+        <li>
+          <strong>Optionale Angaben:</strong> Falls du zustimmst, kontaktiert
+          zu werden, kannst du freiwillig einen Vornamen sowie eine
+          E-Mail-Adresse oder Telefonnummer angeben. Diese Angaben sind nicht
+          verpflichtend.
+        </li>
+        <li>
+          <strong>Technische Daten:</strong> Beim Laden dieser Seite und ihrer
+          Bestandteile fallen automatisch IP-Adressen und ähnliche technische
+          Daten bei den unten genannten Diensten an (z. B. beim Abruf der
+          Kartenkacheln oder Skript-Dateien).
+        </li>
+      </ul>
+
+
+      <h3>3. Zweck der Verarbeitung</h3>
+
+      <p>
+        Die Daten dienen ausschließlich der Erfassung und Dokumentation von
+        Vorkommen invasiver Pflanzenarten in der Region, um deren Ausbreitung
+        besser einschätzen und ggf. Maßnahmen einleiten zu können. Optionale
+        Kontaktdaten werden ausschließlich genutzt, um bei Rückfragen zu einer
+        konkreten Meldung Kontakt aufzunehmen.
+      </p>
+
+
+      <h3>4. Eingesetzte Dienste</h3>
+
+      <p>
+        Diese Seite nutzt folgende externe Dienste, die beim Aufruf der Seite
+        bzw. bei einer Meldung technisch notwendig Daten (in der Regel
+        IP-Adressen) verarbeiten:
+      </p>
+
+      <ul>
+        <li>
+          <strong>GitHub Pages</strong> (GitHub Inc. / Microsoft) – Hosting
+          dieser Webseite.
+        </li>
+        <li>
+          <strong>KoboToolbox</strong> (EU-Server, ee-eu.kobotoolbox.org) –
+          Speicherung der Meldeformulardaten, Fotos und Geodaten.
+        </li>
+        <li>
+          <strong>OpenStreetMap</strong> – Bereitstellung der Kartenkacheln
+          zur Anzeige der Karte.
+        </li>
+        <li>
+          <strong>unpkg.com</strong> – Auslieferung der eingesetzten
+          Kartenbibliotheken (Leaflet, Leaflet-Geoman).
+        </li>
+        <li>
+          <strong>Wikipedia / Wikimedia Foundation</strong> – Anzeige von
+          Pflanzenfotos in der Übersicht "Welche Pflanzen sind gemeint?".
+        </li>
+      </ul>
+
+      <p>
+        Es werden keine eigenen Cookies gesetzt und keine Analyse- oder
+        Trackingtools (z. B. Google Analytics) eingesetzt.
+      </p>
+
+
+      <h3>5. Speicherdauer</h3>
+
+      <p>
+        Meldedaten verbleiben in KoboToolbox, bis sie manuell gelöscht werden.
+        Eine automatische Löschfrist ist derzeit nicht festgelegt.
+      </p>
+
+
+      <h3>6. Deine Rechte</h3>
+
+      <p>
+        Du hast das Recht auf Auskunft, Berichtigung, Löschung und
+        Einschränkung der Verarbeitung deiner personenbezogenen Daten sowie
+        das Recht auf Datenübertragbarkeit. Wende dich hierzu an die oben
+        genannte Kontaktadresse. Außerdem besteht ein Beschwerderecht bei der
+        zuständigen Datenschutzaufsichtsbehörde.
+      </p>
+
+    </div>
+
+
+    <button
+      class="back-button"
+      id="legalBackButton"
+      style="display:block;margin:22px auto 0;"
+    >
+      ← Zurück zur Startseite
+    </button>
+
+  </section>
+
+
+
+  <!-- =========================================================
        BILD-LIGHTBOX
        ========================================================= -->
 
@@ -1140,6 +1372,9 @@
     const neophytenArea =
       document.getElementById('neophytenArea');
 
+    const legalArea =
+      document.getElementById('legalArea');
+
 
 
     function hideAllAreas() {
@@ -1150,6 +1385,7 @@
       offlineArea.style.display = 'none';
       syncOfflineArea.style.display = 'none';
       neophytenArea.style.display = 'none';
+      legalArea.style.display = 'none';
 
     }
 
@@ -1328,6 +1564,28 @@
     document.getElementById(
       'neophytenBackButton'
     ).onclick = showStart;
+
+
+    document.getElementById(
+      'legalBackButton'
+    ).onclick = showStart;
+
+
+
+    // ============================================================
+    // IMPRESSUM & DATENSCHUTZ ANZEIGEN
+    // ============================================================
+
+    document.getElementById(
+      'legalButton'
+    ).onclick = function() {
+
+      hideAllAreas();
+
+      legalArea.style.display =
+        'block';
+
+    };
 
 
 
