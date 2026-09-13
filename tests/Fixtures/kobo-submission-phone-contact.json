@@ -1,0 +1,16 @@
+{
+  "_id": 815381597,
+  "_uuid": "fa693eae-bca7-483f-876f-2a5110896b86",
+  "_xform_id_string": "aUTdQWQfjDBbnYqBtqWWUP",
+  "_submission_time": "2026-08-30T07:38:34",
+  "Welche_Pflanzenart_hast_du_gef": "dr_siges_springkraut",
+  "D_rfen_wir_dich_bei_R_ckfragen": "ja__gerne",
+  "Wie_d_rfen_wir_dich_besten_kontaktieren": "01741525118",
+  "melde_id": "NEO-MTFHYPRH-ZCLTR",
+  "karten_typ": "Punkt",
+  "karten_lat": "50.668493",
+  "karten_lon": "12.943354",
+  "karten_geojson": "{\"type\":\"Point\",\"coordinates\":[12.943354,50.668493]}",
+  "karten_online": "ja",
+  "_attachments": []
+}

@@ -1,0 +1,27 @@
+{
+  "_id": 815399208,
+  "_uuid": "fdd4a270-e530-46b2-b872-ef061f56cd33",
+  "meta/instanceID": "uuid:fdd4a270-e530-46b2-b872-ef061f56cd33",
+  "_xform_id_string": "aUTdQWQfjDBbnYqBtqWWUP",
+  "_submission_time": "2026-08-30T09:02:51",
+  "Kennst_du_die_Pflanzenart": "nein__ich_bin_mir_nicht_sicher",
+  "Wo_befindet_sich_der_Pflanzenb": "stra_en__oder_wegrand",
+  "Trifft_etwas_davon_auf_den_Fundort_zu": "gef_hrdung_von_tieren_m_glich",
+  "Wie_gro_ist_der_Pfl_nzenbestand_ungef_hr": "kleiner_bestand___bis_ca__10_pflanzen",
+  "_M_chtest_du_noch_e_nzenbestand_erg_nzen": "Zimmer online",
+  "D_rfen_wir_dich_bei_R_ckfragen": "nein",
+  "melde_id": "NEO-MTFKZC5V-G6W06",
+  "karten_typ": "Punkt",
+  "karten_lat": "50.668773",
+  "karten_lon": "12.94529",
+  "karten_geojson": "{\"type\":\"Point\",\"coordinates\":[12.94529,50.668773]}",
+  "karten_online": "ja",
+  "_attachments": [
+    {
+      "id": 555001,
+      "filename": "meldungen/attachments/abc/IMG-20260829-WA0037-11_2_22.jpg",
+      "mimetype": "image/jpeg",
+      "download_url": "https://eu.kobotoolbox.org/api/v2/assets/aUTdQWQfjDBbnYqBtqWWUP/data/815399208/attachments/attZumbQQjpNdxH2HD9WoGf3/"
+    }
+  ]
+}

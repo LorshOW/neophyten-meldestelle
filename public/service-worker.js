@@ -1,11 +1,10 @@
-const CACHE_NAME = 'neophyten-app-v3';
+const CACHE_NAME = 'neophyten-app-v4';
 
 const APP_FILES = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
+  '/',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   'https://unpkg.com/@geoman-io/leaflet-geoman-free@2.18.0/dist/leaflet-geoman.css',
@@ -83,6 +82,19 @@ self.addEventListener('fetch', event => {
 
 
   // ----------------------------------------------------------
+  // Verwaltungsbereiche (Admin / Aussendienst) und API niemals
+  // offline ausliefern - dort werden echte Daten bearbeitet.
+  // ----------------------------------------------------------
+
+  if (
+    requestUrl.origin === self.location.origin &&
+    /^\/(admin|aussendienst|api|livewire|storage)(\/|$)/.test(requestUrl.pathname)
+  ) {
+    return;
+  }
+
+
+  // ----------------------------------------------------------
   // OpenStreetMap-Kacheln NICHT offline speichern
   // ----------------------------------------------------------
 
@@ -118,7 +130,7 @@ self.addEventListener('fetch', event => {
 
           caches.open(CACHE_NAME)
             .then(cache => {
-              cache.put('./index.html', responseCopy);
+              cache.put('/', responseCopy);
             });
 
           return response;
@@ -127,7 +139,7 @@ self.addEventListener('fetch', event => {
 
         .catch(() => {
 
-          return caches.match('./index.html');
+          return caches.match('/');
 
         })
 

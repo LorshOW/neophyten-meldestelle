@@ -4,14 +4,20 @@
 
 <head>
   <meta charset="UTF-8">
+
+  {{-- Server-rendered configuration for the public reporting app. --}}
+  <script>
+    window.__MELDESTELLE__ = @json($config);
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Invasive Pflanzen melden</title>
 
-  <link rel="apple-touch-icon" href="./icon-192.png">
-  <link rel="icon" type="image/png" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="icon" type="image/png" href="/icon-192.png">
   <meta name="theme-color" content="#245b32">
-  <link rel="manifest" href="./manifest.json">
+  <link rel="manifest" href="/manifest.json">
 
   <link
     rel="stylesheet"
@@ -768,7 +774,7 @@
     <div class="start-card">
 
       <img
-        src="./icon-192.png"
+        src="/icon-192.png"
         alt="Meldestelle invasive Pflanzen"
         class="brand-logo"
       >
@@ -1193,6 +1199,10 @@
           verpflichtend.
         </li>
         <li>
+          <strong>Abgeleitete Ortsangaben:</strong> Aus den Koordinaten deiner
+          Meldung werden Postleitzahl, Gemeinde und Landkreis ermittelt.
+        </li>
+        <li>
           <strong>Technische Daten:</strong> Beim Laden dieser Seite und ihrer
           Bestandteile fallen automatisch IP-Adressen und ähnliche technische
           Daten bei den unten genannten Diensten an (z. B. beim Abruf der
@@ -1227,7 +1237,20 @@
         </li>
         <li>
           <strong>KoboToolbox</strong> (EU-Server, ee-eu.kobotoolbox.org) –
-          Speicherung der Meldeformulardaten, Fotos und Geodaten.
+          Erfassung der Meldeformulardaten, Fotos und Geodaten.
+        </li>
+        <li>
+          <strong>Meldestelle-Anwendung</strong> (eigener Server) – deine
+          Meldung wird aus KoboToolbox in unsere eigene Fachanwendung
+          übernommen und dort weiterverarbeitet. Dort werden die
+          Meldungsdaten, Fotos und – sofern du zugestimmt hast – deine
+          Kontaktangaben gespeichert, um den Vorgang zu bearbeiten.
+        </li>
+        <li>
+          <strong>OpenStreetMap / Nominatim</strong> – zu den Koordinaten
+          deiner Meldung wird die zugehörige Postleitzahl, Gemeinde und
+          Landkreis ermittelt, damit die Meldung der zuständigen Stelle
+          zugeordnet werden kann.
         </li>
         <li>
           <strong>OpenStreetMap</strong> – Bereitstellung der Kartenkacheln
@@ -1252,8 +1275,16 @@
       <h3>5. Speicherdauer</h3>
 
       <p>
-        Meldedaten verbleiben in KoboToolbox, bis sie manuell gelöscht werden.
-        Eine automatische Löschfrist ist derzeit nicht festgelegt.
+        Meldedaten werden in KoboToolbox sowie in der Meldestelle-Anwendung
+        gespeichert, bis sie gelöscht werden. Sofern eine Aufbewahrungsfrist
+        konfiguriert ist, werden abgeschlossene Vorgänge nach deren Ablauf
+        einschließlich der zugehörigen Fotos automatisch gelöscht.
+      </p>
+
+      <p>
+        Deine freiwilligen Kontaktangaben werden ausschließlich für Rückfragen
+        und Rückmeldungen zu deiner konkreten Meldung verwendet – und nur dann,
+        wenn du der Kontaktaufnahme im Formular ausdrücklich zugestimmt hast.
       </p>
 
 
@@ -1326,7 +1357,7 @@
     // ============================================================
 
     const KOBO_URL =
-      'https://ee-eu.kobotoolbox.org/x/aeG09o4G';
+      window.__MELDESTELLE__.koboFormUrl;
 
 
 
@@ -1339,7 +1370,7 @@
       window.addEventListener('load', function() {
 
         navigator.serviceWorker
-          .register('./service-worker.js')
+          .register('/service-worker.js')
           .catch(function(error) {
             console.error('Service Worker Fehler:', error);
           });
