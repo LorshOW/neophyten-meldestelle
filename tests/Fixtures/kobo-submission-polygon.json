@@ -1,0 +1,21 @@
+{
+  "_id": 815381247,
+  "_uuid": "182ab0a8-53d7-43de-ade9-44f15e7ddcd6",
+  "_xform_id_string": "aUTdQWQfjDBbnYqBtqWWUP",
+  "_submission_time": "2026-08-30T07:35:59",
+  "Kennst_du_die_Pflanzenart": "ja__ich_kenne_die_art",
+  "Welche_Pflanzenart_hast_du_gef": "kanadische_goldrute",
+  "Wo_befindet_sich_der_Pflanzenb": "wald___waldrand wiese___gr_nland",
+  "Trifft_etwas_davon_auf_den_Fundort_zu": "gef_hrdung_von_menschen_m_glich__z__b__h",
+  "Wie_gro_ist_der_Pfl_nzenbestand_ungef_hr": "sehr_gro____gr_er_als_ein_kleiner_garten",
+  "_M_chtest_du_noch_e_nzenbestand_erg_nzen": "Testfläche",
+  "D_rfen_wir_dich_bei_R_ckfragen": "ja__gerne",
+  "Wie_d_rfen_wir_dich_besten_kontaktieren": "oliver.wenzek@gmail.com",
+  "melde_id": "NEO-MTFHVXDK-JJS1M",
+  "karten_typ": "Flaeche",
+  "karten_lat": "50.66144824813631",
+  "karten_lon": "12.946462333202364",
+  "karten_geojson": "{\"type\":\"Polygon\",\"coordinates\":[[[12.946594,50.66198],[12.947297,50.661824],[12.946867,50.660954],[12.945628,50.660916],[12.946594,50.66198]]]}",
+  "karten_online": "ja",
+  "_attachments": []
+}
